@@ -80,11 +80,8 @@ src/haddolib/tag_core.py
 #bas/RackBox.bas
 #bas/ShapeClick.bas
 
-### --- HIBERNATED: five-grain "dream" ingest (frozen, not developed during prototype) ---
-#src/haddolib/ingest_isbndb.py
-
 ### --- SQL ---
-data/haddolib_prototype.sql
+data/haddolib_default_schema.sql
 
 ### --- Tests ---
 ## Boundary files: show how architecture works at places we might change
@@ -101,7 +98,7 @@ tests/test_database.py
 tests/test_export_core.py
 tests/test_isbn_utils.py
 tests/test_pdf_lst_to_queries.py
-tests/test_prototype_schema.py
+tests/test_default_schema.py
 tests/test_query_core.py
 tests/test_roster.py
 tests/test_roster_import.py

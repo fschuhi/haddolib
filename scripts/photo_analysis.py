@@ -17,12 +17,13 @@ Usage:
 
 import argparse
 import base64
-import csv
 import json
 import sys
 from pathlib import Path
 
 import ollama
+
+from haddolib.common import write_csv
 
 # --- Constants ---
 
@@ -40,8 +41,6 @@ CSV_FIELDS = [
     "quality",
     "comment",
 ]
-
-CSV_SEP = ";"
 
 PROMPT = """\
 You are a book cataloguing assistant. Examine the book cover in the image and \
@@ -269,21 +268,6 @@ def read_image_paths(source, base_dir: Path | None) -> list[Path]:
     return paths
 
 
-def write_csv(rows: list[dict], dest_path: Path) -> None:
-    """Write results as semicolon-delimited CSV with UTF-8 BOM (German Excel compatible)."""
-    with open(dest_path, "w", encoding="utf-8", newline="") as f:
-        f.write("\ufeff")  # UTF-8 BOM so German Excel recognises encoding on double-click
-        writer = csv.DictWriter(
-            f,
-            fieldnames=CSV_FIELDS,
-            delimiter=CSV_SEP,
-            lineterminator="\r\n",
-            extrasaction="ignore",
-        )
-        writer.writeheader()
-        writer.writerows(rows)
-
-
 # --- Main ---
 
 def main() -> None:
@@ -358,7 +342,8 @@ def main() -> None:
     )
 
     # --- Write CSV ---
-    write_csv(rows, output_path)
+    with open(output_path, "w", encoding="utf-8", newline="") as f:
+        write_csv(rows, f, CSV_FIELDS)
     print(f"[INFO] Output written to {output_path}", file=sys.stderr)
 
 

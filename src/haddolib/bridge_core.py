@@ -72,7 +72,7 @@ def parse_block(data) -> tuple[list, list]:
     return headers, rows
 
 
-def build_rejected_csv_rows(headers, rejected_rows) -> tuple[list[dict], list[str]]:
+def build_rejected_file_rows(headers, rejected_rows) -> tuple[list[dict], list[str]]:
     """Turn the driver's (reason, detail, raw values) capture into dict rows.
 
     THIS is where the column headers re-enter: the driver stored values only, so
@@ -160,7 +160,7 @@ def run_import(conn, data, now: datetime, import_dir) -> str:
     if summary.rejected_rows:
         filename = f"{now.strftime('%Y%m%d_%H%M%S')}_rejected.xlsx"
         path = os.path.join(import_dir, filename)
-        rejected_rows, fieldnames = build_rejected_csv_rows(headers, summary.rejected_rows)
+        rejected_rows, fieldnames = build_rejected_file_rows(headers, summary.rejected_rows)
         write_xlsx(rejected_rows, path, fieldnames)
         rejected_file = path
 

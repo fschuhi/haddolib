@@ -7,7 +7,7 @@ No PyXLL, no Excel -- testable on macOS via the empty_db fixture.
 
 Public entry points:
 
-  set_tags(conn, book_id, tags_csv) -- replace all tags for a book.
+  set_tags(conn, book_id, tags_text) -- replace all tags for a book.
 
 Tag contract (mirrors the import path in roster_import.py):
   - Tag matching is case-insensitive (COLLATE NOCASE on the unique index).
@@ -51,16 +51,16 @@ def _resolve_or_create_tags(conn: sqlite3.Connection, names: list[str]) -> list[
 def set_tags(
     conn: sqlite3.Connection,
     book_id: int,
-    tags_csv: str,
+    tags_text: str,
 ) -> None:
-    """Replace all tags for a book with the tags in tags_csv.
+    """Replace all tags for a book with the tags in tags_text.
 
-    tags_csv is a comma-delimited string of tag names (e.g. "Klassiker, SciFi").
+    tags_text is a comma-delimited string of tag names (e.g. "Klassiker, SciFi").
     Whitespace around names is trimmed; blank entries are dropped. An empty or
-    blank tags_csv clears all tags for the book.
+    blank tags_text clears all tags for the book.
 
     Steps:
-      1. Parse tags_csv into a clean name list (via split_tags).
+      1. Parse tags_text into a clean name list (via split_tags).
       2. Delete all existing book_tag rows for this book_id.
       3. Resolve each name to a tag_id (auto-creating unknown tags in the tag
          table); link each to the book via a new book_tag row.
@@ -76,7 +76,7 @@ def set_tags(
     if not isinstance(book_id, int) or book_id <= 0:
         raise ValueError(f"set_tags() requires a positive integer book_id, got {book_id!r}")
 
-    names = split_tags(tags_csv)
+    names = split_tags(tags_text)
 
     conn.execute("DELETE FROM book_tag WHERE book_id = ?", (book_id,))
 

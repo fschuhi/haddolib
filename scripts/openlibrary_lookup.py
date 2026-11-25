@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-isbn_lookup.py -- Bulk ISBN lookup via Open Library Books API.
+openlibrary_lookup.py -- Bulk ISBN lookup via Open Library Books API.
 
 Reads ISBNs (one per line) from a file (-i) or stdin.
 Writes a semicolon-delimited CSV (UTF-8 BOM, German Excel compatible)
@@ -9,17 +9,18 @@ to a file (-o) or stdout.
 Progress and batch info are written to stderr.
 
 Usage:
-    python tools/isbn_lookup.py -i data/input/isbns.txt -o data/output/isbn_results.csv
-    cat data/input/isbns.txt | python tools/isbn_lookup.py -o data/output/isbn_results.csv
-    python tools/isbn_lookup.py -i data/input/isbns.txt   # stdout
+    python scripts/openlibrary_lookup.py -i data/input/isbns.txt -o data/output/isbn_results.csv
+    cat data/input/isbns.txt | python scripts/openlibrary_lookup.py -o data/output/isbn_results.csv
+    python scripts/openlibrary_lookup.py -i data/input/isbns.txt   # stdout
 """
 
 import argparse
-import csv
 import sys
 import time
 
 import requests
+
+from haddolib.common import write_csv
 
 # --- Constants ---
 
@@ -41,8 +42,6 @@ CSV_FIELDS = [
     "cover_url_large",
     "ol_url",
 ]
-
-CSV_SEP = ";"
 
 
 # --- ISBN validation ---
@@ -154,21 +153,6 @@ def read_isbns(source) -> list[str]:
     return isbns
 
 
-def write_csv(rows: list[dict], dest) -> None:
-    """Write results as semicolon-delimited CSV with UTF-8 BOM."""
-    # UTF-8 BOM so German Excel recognises the encoding on double-click
-    dest.write("\ufeff")
-    writer = csv.DictWriter(
-        dest,
-        fieldnames=CSV_FIELDS,
-        delimiter=CSV_SEP,
-        lineterminator="\r\n",  # Windows-friendly
-        extrasaction="ignore",
-    )
-    writer.writeheader()
-    writer.writerows(rows)
-
-
 # --- Main ---
 
 def main() -> None:
@@ -230,10 +214,10 @@ def main() -> None:
     # --- Write CSV ---
     if args.output:
         with open(args.output, "w", encoding="utf-8", newline="") as f:
-            write_csv(rows, f)
+            write_csv(rows, f, CSV_FIELDS)
         print(f"[INFO] Output written to {args.output}", file=sys.stderr)
     else:
-        write_csv(rows, sys.stdout)
+        write_csv(rows, sys.stdout, CSV_FIELDS)
 
 
 if __name__ == "__main__":

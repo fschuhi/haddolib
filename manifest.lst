@@ -43,7 +43,7 @@ scripts/pdf_lst_to_queries.py
 scripts/photo_analysis.py
 
 # Open Library lookup superseded by ISBNdb
-#scripts/isbn_lookup.py
+#scripts/openlibrary_lookup.py
 
 ### --- Shared foundation ---
 src/haddolib/catalog.py
@@ -96,7 +96,7 @@ tests/test_common_coercion.py
 tests/test_common_xlsx.py
 tests/test_database.py
 tests/test_snapshot_core.py
-tests/test_isbn_utils.py
+tests/test_isbndb_utils.py
 tests/test_pdf_lst_to_queries.py
 tests/test_default_schema.py
 tests/test_query_core.py

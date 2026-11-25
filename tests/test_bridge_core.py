@@ -14,7 +14,7 @@ import pytest
 from openpyxl import load_workbook
 
 from haddolib.bridge_core import (
-    build_rejected_csv_rows,
+    build_rejected_file_rows,
     pack_summary,
     parse_block,
     run_import,
@@ -89,10 +89,10 @@ def test_parse_block_flat_row_raises() -> None:
 
 
 # ---------------------------------------------------------------------------
-# build_rejected_csv_rows -- the header re-enters here; reason + detail lead
+# build_rejected_file_rows -- the header re-enters here; reason + detail lead
 # ---------------------------------------------------------------------------
 
-def test_build_rejected_csv_rows_shape_detail_and_verbatim() -> None:
+def test_build_rejected_file_rows_shape_detail_and_verbatim() -> None:
     headers = ["isbn13", "title", "height_cm"]
     rejected = [
         # a FIELD-level check carries a detail naming the offending cell...
@@ -101,7 +101,7 @@ def test_build_rejected_csv_rows_shape_detail_and_verbatim() -> None:
         # ...an identity check leaves the detail blank (code alone says enough).
         ("invalid_isbn13", "", ("9783423058088", "Bad", "")),
     ]
-    rows, fieldnames = build_rejected_csv_rows(headers, rejected)
+    rows, fieldnames = build_rejected_file_rows(headers, rejected)
     assert fieldnames == ["rejected_reason", "rejected_detail", "isbn13", "title", "height_cm"]
     assert rows == [
         {"rejected_reason": "non_numeric_value",

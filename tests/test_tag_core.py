@@ -11,7 +11,7 @@ Core contract under test:
   - Tag matching is case-insensitive; unknown tags are auto-added to tag.
   - The tag table is append-only: removed tags stay in tag, only book_tag
     rows are deleted.
-  - An empty/blank tags_csv clears all tags without error.
+  - An empty/blank tags_text clears all tags without error.
   - Does not commit -- the caller owns the transaction.
 """
 

@@ -4,7 +4,7 @@ src/haddolib/pyxll_bridge.py -- PyXLL integration layer for haddolib.
 
 The @xl_func / @xl_macro entry points that expose the Python backend to Excel
 (the macros via VBA's Application.Run). These are THIN: marshalling and DB-
-connection housekeeping only. All real work -- parse, import, rejected-CSV,
+connection housekeeping only. All real work -- parse, import, rejected file,
 summary packing, queries, handle state -- lives in bridge_core / query_core /
 catalog, which are unit-tested on macOS WITHOUT PyXLL. This module can
 therefore only be exercised in the Windows VM where PyXLL is installed.
@@ -241,8 +241,8 @@ def haddo_books_by_tags(tags: str, match_all: bool) -> str:
 # Tag write crossing
 # ---------------------------------------------------------------------------
 
-@xl_func("int book_id, str tags_csv: str")
-def haddo_set_tags(book_id: int, tags_csv: str) -> str:
+@xl_func("int book_id, str tags_text: str")
+def haddo_set_tags(book_id: int, tags_text: str) -> str:
     """Replace all tags for a book.
 
     Called from VBA via Application.Run:
@@ -250,7 +250,7 @@ def haddo_set_tags(book_id: int, tags_csv: str) -> str:
 
     book_id   -- the integer book.book_id (retrieve via haddo_get_field on an
                  existing handle, e.g. GetHaddoBooksFieldInRow(handle, row, "book_id")).
-    tags_csv  -- comma-delimited tag names; whitespace around names is trimmed.
+    tags_text -- comma-delimited tag names; whitespace around names is trimmed.
                  An empty or blank string clears all tags for the book.
 
     Returns "ok" on success. Raises #VALUE! if book_id is not a positive integer.
@@ -259,7 +259,7 @@ def haddo_set_tags(book_id: int, tags_csv: str) -> str:
     """
     conn = connect()
     try:
-        set_tags(conn, book_id, tags_csv)
+        set_tags(conn, book_id, tags_text)
         conn.commit()
         return "ok"
     finally:

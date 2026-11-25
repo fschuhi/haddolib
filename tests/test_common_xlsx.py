@@ -56,7 +56,7 @@ def test_write_xlsx_keeps_numeric_fields_numeric(tmp_path) -> None:
 
 
 def test_write_xlsx_missing_key_yields_empty_cell(tmp_path) -> None:
-    # build_rejected_csv_rows always supplies every field, but be robust: a dict
+    # build_rejected_file_rows always supplies every field, but be robust: a dict
     # missing a fieldname must not raise -- it writes an empty cell.
     fieldnames = ["a", "b"]
     rows = [{"a": "present"}]                         # 'b' absent on purpose

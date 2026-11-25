@@ -2,46 +2,32 @@
 
 (Note: "I" in the following paragraphs refer to the user, "you" to you as the AI model.)
 
-**Charter:** This file answers: where is the project going, in what order, and what happens next. It holds the strategic vision, the phased roadmap, and goals that need a strategy discussion before they are actionable. The _Current Session Pointer_ below is the single canonical "where we are / what's next" -- keep it to a few lines, update it, don't grow it; `FIRST_PROMPT.md` sends the reader here first. Concrete, startable work lives in `TODO.md`; the resolved-work record lives in `HISTORY.md` (on the heap, out of the per-session dump); architecture and contract live in `README.md`.
+**Charter:** This file answers: where is the project going, in what order, and what happens next. It holds the strategic vision, the phased roadmap, and goals that need a strategy discussion before they are actionable. The _Current Session Pointer_ below is the single canonical "where we are / what's next" -- keep it to a few lines, update it, don't grow it; `FIRST_PROMPT.md` sends the reader here first. Concrete, startable work lives in `TODO.md`; the resolved-work record lives in `HISTORY.md` (on the heap, out of the per-session dump); architecture and contracts live in `README.md`.
 
 ---
 
-
 ## 📍 Current Session Pointer
 
-**Where we are:** Documentation streamlined. `README.md` revamped into the orientation /
-architecture / contract / settled-decisions spine -- the crystallisation point a new session
-reads first. `HISTORY.md` split out to hold the resolved-work record. `TODO.md` slimmed to
-forward-only.
+**Where we are:** Streamlined, together with haddoapp (2026-11-25). One schema (`data/haddolib_default_schema.sql`); "dump" is now "snapshot"; the code is plain ASCII and named by the naming rules; `README.md` is the one orientation document, and `HISTORY.md` is a dated trophy case. The Excel import is checked live. All tests green.
 
-**What's next:** The refactor pass:
-0. Review `TODO`. Does it make sense to elevate other items than the following three from the backlog?
-1. Flip `DEFAULT_SCHEMA` to the prototype DDL (confirm `bootstrap_db.py` passes it explicitly).
-2. Extract `_SHELF_ORDER` in `query_core.py`.
-3. `date_published` canonicalizer -- migrate Excel-side date-serial handling down into Python.
-
-*Then, as their own steps:* dispatcher echo-test trim; umlaut-aware search; the `as_int` note.
-Detail behind each lives in `TODO.md`.
+**What's next:** Pick at session start. Candidates: the small streamlining leftovers in `TODO.md`; `stable_book_id`, which synopses in the app would need; cover management (crossing 3); or one of the two strategy topics below. haddoapp has its own pointer and a Christmas deadline.
 
 ---
 
 ## 🎯 Strategic vision
 
-*(Full version in `README.md` §1–§2; the one-paragraph reminder here.)*
+*(Full version in `README.md` sections 1-2; the one-paragraph reminder here.)*
 
-`haddolib` catalogues a shared library of ~3,200 books in the Magazin (plus ~400 elsewhere).
-It is deliberately **not** a generic library-management system -- a tool for two people (≤5 with
-close friends and family), and within that scope likely *more* tailored than any off-the-shelf
-LMS. Two tracks run in parallel: a **physical track** (scanning and pre-curation in
-`racks.xlsm`) and a **foundation track** (the SQLite
-master record -- the focus of our working sessions). The longer-term goal is to use the
-catalogue to gradually reorganise the Magazin so books that belong together migrate towards
-each other, recreating the pleasure of browsing a well-organised bookshop.
+`haddolib` catalogues a shared library of ~3,200 books in the Magazin (plus ~400 elsewhere). It is **not** a generic library-management system -- a tool for two people (at most five with close friends and family), and within that scope likely *more* tailored than any off-the-shelf system. Two tracks run in parallel: a **physical track** (scanning and pre-curation in `racks.xlsm`) and a **foundation track** (the SQLite master record -- the focus of our working sessions). The longer-term goal is to use the catalogue to gradually reorganise the Magazin so books that belong together move towards each other, recreating the pleasure of browsing a well-organised bookshop.
 
-The foundation track runs on the **prototype** architecture (the active one; the five-grain
-"dream" is hibernated, with a non-destructive growth path back). Data reaches the DB through
-four PyXLL crossings, only the first batch-driven: **import** (insert-only), **tag
-management**, **cover management**, and **bib editing** (deferred). See `README.md` §3.
+Data reaches the database through four PyXLL crossings, only the first batch-driven: **import** (insert-only), **tag management**, **cover management** and **bib editing**; the last two are not built yet. haddoapp shows the library on the iPhone, read from a copy of the database. See `README.md` sections 3-5.
+
+---
+
+## Needs a strategy discussion
+
+- **Help with curation, without sharing the catalogue.** Which books we own says a lot about my wife and me, so the real data stays at home. Ways to still get help with the workbench, the data quality (wrong covers, author spellings, missing ISBNs) and some automation: a local model (Ollama already runs here), or a made-up look-alike workbook to show the workflow. An own conversation.
+- **Mac first.** Move as much as possible from the Windows VM to the Mac (`README.md` section 6.1 lists what runs where). Today Excel, PyXLL and the live database need the VM. Longer term: is Excel still the right workbench? An own conversation.
 
 ---
 
@@ -49,33 +35,22 @@ management**, **cover management**, and **bib editing** (deferred). See `README.
 
 **Foundation (working sessions):**
 
-- [ ] **The refactor pass** -- schema-default flip, `_SHELF_ORDER`, the `date_published`
-      canonicalizer, then the cleanup steps. See `TODO.md` → Active / Pending.
-- [ ] **Cover management (crossing 3)** -- dialog *and* batch; the cover workflow.
+- **Streamlining leftovers** -- the small items in `TODO.md`.
+- **Cover management (crossing 3)** -- dialog *and* batch; the cover workflow.
 
 **Physical track (Frank, ongoing):**
 
-- [ ] **Scan the remainder** -- rack 15 (cookbooks); then ~400 books elsewhere in the house.
-- [ ] **Excel workbench** -- master catalogue curated in `racks.xlsm` through the bulk phase.
+- **Scan the remainder** -- rack 15 (cookbooks); then ~400 books elsewhere in the house.
+- **Excel workbench** -- the catalogue curated in `racks.xlsm`, in +/- cycles (`README.md` section 4).
 
-*Pre-ISBN / no-barcode books are handled uniformly by the prototype: a `book` row with
-`isbn13 = NULL`, location inline, the photo as an `own_photo` cover, and a provisional revision.
-It shows in `book_current` like any other book from day one -- no special-casing.*
+*Books without an ISBN barcode are no special case: a `book` row with `isbn13 = NULL`, the location on the row, the photo as an `own_photo` cover, and a revision when there is bibliographic data. They show in `book_current` like any other book.*
 
 ---
 
-## Phase 2 -- Curation + the dream (future / hibernated)
+## Phase 2 -- Curation (future)
 
-*The dream schema is not abandoned -- each prototype omission has a documented, non-destructive
-growth path (see `haddolib-design.md` on the heap).*
-
-- [ ] **Bib editing (crossing 4)** -- the dialog that writes second+ `book_revision` rows.
-- [ ] **Movement history** -- re-add a `location_event` table keyed on `book_id` when curation
-      begins (with the corrected *checkout-is-not-a-move* semantics); the inline location
-      columns migrate into a first event row.
-- [ ] **The `copy` grain** -- re-add only when a second physical copy is formally admitted.
-- [ ] **Streamlit app** -- a visual box-by-box browser with cover art and movement tracking.
-- [ ] **Synopsis enrichment** -- a dedicated `synopsis` table (0..n per book, own source +
-      quality status).
-- [ ] **LibraryThing export** (optional) -- CSV with rack/box as tags; virtual ISBN13s minted
-      lazily at export.
+- **Synopses in the app** -- one text file per book, keyed by `stable_book_id` (see `TODO.md`), shown on haddoapp's book page; fetched the way the `pdf-annotations` synopses are.
+- **Bib editing (crossing 4)** -- the dialog that writes second and later `book_revision` rows.
+- **Movement history** -- once books start moving between boxes, record each move (a book taken to another room for reading is not a move). The location columns on `book` would become the first entry.
+- **A second copy of a book** -- the schema has one row per physical book and `isbn13` is unique; a second physical copy with the same ISBN needs a change there.
+- **LibraryThing export** (optional) -- CSV with rack/box as tags.

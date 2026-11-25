@@ -9,6 +9,7 @@
 
 ---
 
+- **2026-11-25:** One README tells the whole story: the +/- cycle in Excel, what haddoapp and `pdf-annotations` rely on, and what runs on the Mac and what in the VM. The design document has served its purpose.
 - **2026-11-25:** haddolib and haddoapp, read together for the first time. haddolib moves into a fresh public repository, without the raw ISBN scans; the full history stays private in `haddolib-old`.
 - **2026-11-25:** The dream retires, and the word "prototype" with it: the five tables and one view the library lives in are simply the schema now, `haddolib_default_schema.sql`.
 - **2026-11-25:** "Dump" becomes "snapshot": `make snapshot` writes the whole library at one moment, the start of the next +/- cycle in `racks.xlsm`.

@@ -15,8 +15,8 @@ API key is read from the environment variable ISBNDB_API_KEY,
 or from a .env file in the current working directory.
 
 Usage:
-    python tools/isbndb_lookup.py -i data/input/isbns.txt -o data/output/isbndb_results.csv
-    cat data/input/isbns.txt | python tools/isbndb_lookup.py -o data/output/isbndb_results.csv
+    python scripts/isbndb_lookup.py -i data/input/isbns.txt -o data/output/isbndb_results.csv
+    cat data/input/isbns.txt | python scripts/isbndb_lookup.py -o data/output/isbndb_results.csv
 """
 
 import argparse

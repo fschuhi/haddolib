@@ -2,7 +2,7 @@
 """
 database.py -- The single front door to the haddolib SQLite database.
 
-Every piece of code that touches the database (ingest scripts, tests, and later
+Every piece of code that touches the database (import scripts, tests, and later
 the PyXLL bridge) opens its connection through `connect()` here, never via a raw
 `sqlite3.connect(...)`. Routing all connections through one factory guarantees
 the connection *contract* is always honoured:
@@ -25,7 +25,7 @@ the connection *contract* is always honoured:
 
   3. Rows are readable by column name.
        `row_factory = sqlite3.Row` lets query results be read as `row["title"]`
-       instead of `row[0]`, which keeps ingest code and tests legible.
+       instead of `row[0]`, which keeps import code and tests legible.
 
 `apply_schema()` runs the schema DDL (`DEFAULT_SCHEMA`) against a connection.
 The same function serves two purposes: the test harness loads the schema onto a

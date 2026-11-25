@@ -21,11 +21,11 @@ API key is read from the environment variable ISBNDB_API_KEY,
 or from a .env file in the current working directory.
 
 Usage:
-    python tools/isbndb_query.py "Wolf Haas Müll"
-    python tools/isbndb_query.py "Daniel Goleman    EQ Emotionale Intelligenz"
-    python tools/isbndb_query.py --synopsis "Wolf Haas Müll"
-    python tools/isbndb_query.py 9783442164998
-    python tools/isbndb_query.py 3892282358
+    python scripts/isbndb_query.py "Wolf Haas Müll"
+    python scripts/isbndb_query.py "Daniel Goleman    EQ Emotionale Intelligenz"
+    python scripts/isbndb_query.py --synopsis "Wolf Haas Müll"
+    python scripts/isbndb_query.py 9783442164998
+    python scripts/isbndb_query.py 3892282358
 """
 
 import argparse

@@ -271,15 +271,15 @@ def _check_incomplete_location(parsed: ParsedRow) -> tuple[str, str] | None:
     """
     book = parsed.book
     room = book.get("room")
-    space = book.get("space_label")
+    space_label = book.get("space_label")
     bin_label = book.get("bin_label")
 
-    if bin_label is not None and space is None:
+    if bin_label is not None and space_label is None:
         return ("incomplete_location",
                 f"bin_label = '{bin_label}' present but space_label is blank")
-    if space is not None and room is None:
+    if space_label is not None and room is None:
         return ("incomplete_location",
-                f"space_label = '{space}' present but room is blank")
+                f"space_label = '{space_label}' present but room is blank")
     return None
 
 

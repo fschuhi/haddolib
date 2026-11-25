@@ -32,13 +32,13 @@ TS = "2026-06-20T12:00:00"
 def _seed(conn) -> None:
     """Insert the standard 4-book dataset into empty_db."""
 
-    def _book(isbn13, room, space, bin_label, position, book_status,
+    def _book(isbn13, room, space_label, bin_label, position, book_status,
               cover_ref=None, cover_source=None, cover_status=None,
               source=None, title=None, tags=None):
         cur = conn.execute(
             "INSERT INTO book (isbn13, room, space_label, bin_label, position, "
             "book_status, preferred_cover_id, created_at) VALUES (?,?,?,?,?,?,NULL,?)",
-            (isbn13, room, space, bin_label, position, book_status, TS),
+            (isbn13, room, space_label, bin_label, position, book_status, TS),
         )
         book_id = cur.lastrowid
         if title:

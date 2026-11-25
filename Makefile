@@ -38,7 +38,7 @@ SETUP_STAMP   = $(VENV_DIR)/.setup_stamp
 .PHONY: patch commit-hash
 .PHONY: clean help
 .PHONY: showtree gentree filesdump filesdump-detailed
-.PHONY: bootstrap backup snapshot isbndb-lookup isbndb-search isbndb-query photo-analysis pdf-lst-to-queries isbn-synopsis
+.PHONY: bootstrap backup snapshot isbndb-lookup isbndb-search isbndb-query photo-analysis pdf-lst-to-queries isbndb-synopsis
 
 all: setup
 

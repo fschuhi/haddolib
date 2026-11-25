@@ -144,9 +144,9 @@ HEADERS = ["tags", "isbn13", "title", "revision_source", "cover_ref", "cover_sou
 
 
 def _row(isbn13="", title="", source="", ref="", cover_source="",
-         room="Magazin", space="rack 01", binl="01", tags=""):
+         room="Magazin", space_label="rack 01", binl="01", tags=""):
     # built in HEADERS order
-    return [tags, isbn13, title, source, ref, cover_source, room, space, binl]
+    return [tags, isbn13, title, source, ref, cover_source, room, space_label, binl]
 
 
 def _count(empty_db, table):

@@ -140,8 +140,8 @@ def haddo_query(name: str, *params):
 # Handle-based list queries
 # ---------------------------------------------------------------------------
 
-@xl_func("str room, str space, str bin_label: str")
-def haddo_books_by_bin(room: str, space: str, bin_label: str) -> str:
+@xl_func("str room, str space_label, str bin_label: str")
+def haddo_books_by_bin(room: str, space_label: str, bin_label: str) -> str:
     """Load all books in one bin and return a private haddolib handle string.
 
     Called from a worksheet cell or from VBA via Application.Run:
@@ -159,7 +159,7 @@ def haddo_books_by_bin(room: str, space: str, bin_label: str) -> str:
     """
     conn = connect()
     try:
-        rows = books_by_bin(conn, room, space, bin_label)
+        rows = books_by_bin(conn, room, space_label, bin_label)
         return _CATALOG.put("books_by_bin", rows)
     finally:
         conn.close()

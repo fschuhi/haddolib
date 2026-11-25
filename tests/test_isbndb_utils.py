@@ -82,7 +82,7 @@ def test_select_best_matching_year_empty_records() -> None:
 def test_select_best_matching_year_no_year_requested() -> None:
     # A falsy year skips filtering entirely -- same fallback path as the
     # year-absent case above, exercised via the empty-string input that
-    # isbn_synopsis.py would pass when year_searched is unknown.
+    # isbndb_synopsis.py would pass when year_searched is unknown.
     record, year_matched = select_best_matching_year(_TWO_EDITIONS, "")
     assert record["isbn13"] == "9781559393218"
     assert year_matched == ""

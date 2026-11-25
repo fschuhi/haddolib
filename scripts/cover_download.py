@@ -9,8 +9,8 @@ Files already present in the output directory are skipped.
 Progress and summary are written to stderr.
 
 Usage:
-    python tools/cover_download.py -i data/input/urls.txt -o data/covers/
-    cat urls.txt | python tools/cover_download.py -o data/covers/
+    python scripts/cover_download.py -i data/input/urls.txt -o data/covers/
+    cat urls.txt | python scripts/cover_download.py -o data/covers/
 """
 
 import argparse

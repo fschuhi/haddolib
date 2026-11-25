@@ -30,8 +30,8 @@ HEADERS = ["tags", "isbn13", "title", "revision_source", "cover_ref", "cover_sou
 
 
 def _row(tags="", isbn13="", title="", source="", cover_ref="", cover_source="",
-         room="Magazin", space="rack 01", binl="01"):
-    return (tags, isbn13, title, source, cover_ref, cover_source, room, space, binl)
+         room="Magazin", space_label="rack 01", binl="01"):
+    return (tags, isbn13, title, source, cover_ref, cover_source, room, space_label, binl)
 
 
 def _vba_parse(s: str) -> dict:

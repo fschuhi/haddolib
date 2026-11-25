@@ -9,7 +9,7 @@ the pdf-annotations naming convention:
 
 Writes a semicolon-delimited CSV (UTF-8 BOM, German Excel compatible) with one
 row per parseable filename: pdf_id, query, year. Intended to be inspected (in
-Excel) before isbn_synopsis.py spends API calls resolving it.
+Excel) before isbndb_synopsis.py spends API calls resolving it.
 
 pdf_id is the parenthesized "(Author[+Author...] YYYY[a-z])" prefix, verbatim
 -- matches the bibnote filename stem used by pdf-annotations. The single

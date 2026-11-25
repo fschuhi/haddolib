@@ -10,9 +10,9 @@ Writes results to photo_results.csv in the folder specified by -o.
 Progress is written to stderr.
 
 Usage:
-    python tools/photo_analysis.py -i data/input/photos.lst -o data/output/
-    python tools/photo_analysis.py -i data/input/photos.lst -o data/output/ --base-dir data/photos/
-    python tools/photo_analysis.py -i data/input/photos.lst -o data/output/ --model qwen2.5vl:7b
+    python scripts/photo_analysis.py -i data/input/photos.lst -o data/output/
+    python scripts/photo_analysis.py -i data/input/photos.lst -o data/output/ --base-dir data/photos/
+    python scripts/photo_analysis.py -i data/input/photos.lst -o data/output/ --model qwen2.5vl:7b
 """
 
 import argparse

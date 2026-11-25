@@ -40,13 +40,13 @@ TS = "2026-06-20T12:00:00"
 def _seed(conn) -> None:
     """Insert the standard 4-book dataset into empty_db."""
 
-    def _book(isbn13, room, space, bin_label, book_status, cover_ref=None,
+    def _book(isbn13, room, space_label, bin_label, book_status, cover_ref=None,
               cover_source=None, cover_status=None, source=None, title=None,
               position=None, tags=None):
         cur = conn.execute(
             "INSERT INTO book (isbn13, room, space_label, bin_label, position, book_status, "
             "preferred_cover_id, created_at) VALUES (?,?,?,?,?,?,NULL,?)",
-            (isbn13, room, space, bin_label, position, book_status, TS),
+            (isbn13, room, space_label, bin_label, position, book_status, TS),
         )
         book_id = cur.lastrowid
         if title:
@@ -158,7 +158,7 @@ def test_bins_requires_room(seeded_db) -> None:
 
 
 def test_bins_requires_space(seeded_db) -> None:
-    with pytest.raises(ValueError, match="non-empty space"):
+    with pytest.raises(ValueError, match="non-empty space_label"):
         bins(seeded_db, "Magazin", "")
 
 
@@ -557,7 +557,7 @@ def test_books_by_bin_requires_room(seeded_db) -> None:
 
 
 def test_books_by_bin_requires_space(seeded_db) -> None:
-    with pytest.raises(ValueError, match="non-empty space"):
+    with pytest.raises(ValueError, match="non-empty space_label"):
         books_by_bin(seeded_db, "Magazin", "", "box 01")
 
 
@@ -607,11 +607,11 @@ def seeded_db_for_search(empty_db):
     """Base seed + 3 extra books for title/author/tag query testing."""
     _seed(empty_db)
 
-    def _extra(isbn13, title, authors, space, bin_label, position, tags=None):
+    def _extra(isbn13, title, authors, space_label, bin_label, position, tags=None):
         cur = empty_db.execute(
             "INSERT INTO book (isbn13, room, space_label, bin_label, position, "
             "book_status, preferred_cover_id, created_at) VALUES (?,?,?,?,?,'ready',NULL,?)",
-            (isbn13, "Magazin", space, bin_label, position, TS),
+            (isbn13, "Magazin", space_label, bin_label, position, TS),
         )
         book_id = cur.lastrowid
         empty_db.execute(

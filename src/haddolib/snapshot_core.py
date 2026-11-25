@@ -23,7 +23,7 @@ Columns intentionally excluded from the snapshot:
                   (new ids are minted). Including it would imply a stable
                   identity across re-imports that does not exist.
   - revised_at -- the revision's created_at timestamp; a property of the
-                  original ingest run, not re-playable via import.
+                  original import run, not re-playable via import.
 
 Round-trip caveats (documented in GOALS.md):
   - Only the preferred cover survives (book_current surfaces one cover row).

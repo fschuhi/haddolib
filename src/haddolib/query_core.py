@@ -10,7 +10,7 @@ Two kinds of public entry points:
   query(conn, name, *params) -- the scalar dispatcher used by haddo_query.
     Returns str | int. All named queries registered in _DISPATCH live here.
 
-  books_by_bin(conn, room, space, bin_label) -- list-returning query by location.
+  books_by_bin(conn, room, space_label, bin_label) -- list-returning query by location.
   books_by_title(conn, search)               -- list-returning query by title.
   books_by_author(conn, search)              -- list-returning query by author.
   books_by_tags(conn, tags, match_all)       -- list-returning query by tags.
@@ -109,21 +109,21 @@ def spaces(conn: sqlite3.Connection, room: str) -> str:
     return ", ".join(r["space_label"] for r in rows)
 
 
-def bins(conn: sqlite3.Connection, room: str, space: str) -> str:
+def bins(conn: sqlite3.Connection, room: str, space_label: str) -> str:
     """Distinct bin_label values within a room+space, sorted.
 
-    Raises ValueError if either room or space is blank.
+    Raises ValueError if either room or space_label is blank.
     Returns "" when no books have a bin_label set in that room/space.
     """
     if not room:
         raise ValueError("bins() requires a non-empty room")
-    if not space:
-        raise ValueError("bins() requires a non-empty space")
+    if not space_label:
+        raise ValueError("bins() requires a non-empty space_label")
     rows = conn.execute(
         "SELECT DISTINCT bin_label FROM book_current "
         "WHERE room = ? AND space_label = ? AND bin_label IS NOT NULL "
         "ORDER BY bin_label",
-        (room, space),
+        (room, space_label),
     ).fetchall()
     return ", ".join(r["bin_label"] for r in rows)
 
@@ -332,7 +332,7 @@ def distinct_cover_statuses(conn: sqlite3.Connection) -> str:
 def books_by_bin(
     conn: sqlite3.Connection,
     room: str,
-    space: str,
+    space_label: str,
     bin_label: str,
 ) -> list[dict]:
     """Return all books in one specific bin, ordered by physical position.
@@ -355,8 +355,8 @@ def books_by_bin(
     """
     if not room or not room.strip():
         raise ValueError("books_by_bin() requires a non-empty room")
-    if not space or not space.strip():
-        raise ValueError("books_by_bin() requires a non-empty space")
+    if not space_label or not space_label.strip():
+        raise ValueError("books_by_bin() requires a non-empty space_label")
     if not bin_label or not bin_label.strip():
         raise ValueError("books_by_bin() requires a non-empty bin_label")
 
@@ -370,7 +370,7 @@ def books_by_bin(
           AND b.bin_label   = ?
         ORDER BY b.room, b.space_label, b.bin_label, b.position
         """,
-        (room.strip(), space.strip(), bin_label.strip()),
+        (room.strip(), space_label.strip(), bin_label.strip()),
     ).fetchall()
 
     return [dict(r) for r in rows]

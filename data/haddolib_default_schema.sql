@@ -26,7 +26,7 @@
 
 
 -- ── book : the physical book, its identity, location, and workflow status ───
--- The surrogate book_id is the MERGE ANCHOR: it survives ingest, correction,
+-- The surrogate book_id is the MERGE ANCHOR: it survives import, correction,
 -- and (later) relocation. A ||PH|| placeholder graduates into a resolved book
 -- by UPDATE on THIS row + a new revision -- the id, location, and cover stay put.
 --
@@ -103,7 +103,7 @@ CREATE TABLE cover (
     book_id            INTEGER NOT NULL REFERENCES book(book_id),
     cover_ref          TEXT NOT NULL,              -- the URL, or a directly-supplied file path
     cover_source       TEXT,                       -- OPEN TEXT: 'isbndb','amazon','thalia','own_photo', ... (optional)
-    cover_status       TEXT DEFAULT 'unreviewed',  -- OPEN TEXT cover workflow; default is just the ingest entry state
+    cover_status       TEXT DEFAULT 'unreviewed',  -- OPEN TEXT cover workflow; default is just the import entry state
     created_at         TEXT NOT NULL
 ) STRICT;
 

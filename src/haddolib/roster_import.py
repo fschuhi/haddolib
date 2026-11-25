@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-roster_import.py — Writing a roster row into the prototype database.
+roster_import.py -- Writing a roster row into the database.
 
 roster.py (pure) decides what a row MEANS; this module WRITES it. Still no pyxll
-— plain sqlite3, testable on macOS through the proto_db fixture.
+— plain sqlite3, testable on macOS through the empty_db fixture.
 
 Scope — the FIRST bridge crossing, IMPORT, is INSERT-ONLY. A row is either
 inserted as a new book or declined as a duplicate by the batch driver; import

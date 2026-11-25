@@ -6,7 +6,7 @@ The roster sheet (in racks.xlsm) is ONE ROW PER PHYSICAL BOOK. Each row carries
 the book's identity (isbn13, or blank for a photo book), its inline location, the
 ISBNdb metadata XLOOKUP'd in beside it, an optional cover ref, and a
 comma-delimited tag list. Excel does the lookups; Python just writes the
-prototype database (book / book_revision / cover / tag / book_tag).
+database (book / book_revision / cover / tag / book_tag).
 
 This module is the PURE mapping layer: no database, no pyxll, importable and
 testable anywhere (including macOS). It answers one question per row — "what does

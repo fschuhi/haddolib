@@ -1,8 +1,8 @@
 """
 tests/test_export_core.py — Tests for the pure export layer (export_core.py).
 
-These tests ARE the spec for dump_db(). They use proto_db (the prototype
-schema on an in-memory connection) and the same minimal seed used across the
+These tests ARE the spec for dump_db(). They use empty_db (the schema on an
+in-memory connection) and the same minimal seed used across the
 query_core tests.
 
 Seed layout (4 books):
@@ -30,7 +30,7 @@ TS = "2026-06-20T12:00:00"
 # ---------------------------------------------------------------------------
 
 def _seed(conn) -> None:
-    """Insert the standard 4-book dataset into proto_db."""
+    """Insert the standard 4-book dataset into empty_db."""
 
     def _book(isbn13, room, space, bin_label, position, book_status,
               cover_ref=None, cover_source=None, cover_status=None,
@@ -88,16 +88,16 @@ def _seed(conn) -> None:
 
 
 @pytest.fixture
-def db(proto_db):
-    """proto_db with the standard seed applied."""
-    _seed(proto_db)
-    return proto_db
+def seeded_db(empty_db):
+    """empty_db with the standard seed applied."""
+    _seed(empty_db)
+    return empty_db
 
 
-def _dump(db) -> object:
+def _dump(seeded_db) -> object:
     """Run dump_db into an in-memory buffer and return the loaded workbook."""
     buf = io.BytesIO()
-    dump_db(db, buf, NOW)
+    dump_db(seeded_db, buf, NOW)
     buf.seek(0)
     return load_workbook(buf)
 
@@ -106,18 +106,18 @@ def _dump(db) -> object:
 # Tests
 # ---------------------------------------------------------------------------
 
-def test_dump_db_produces_xlsx(db) -> None:
+def test_dump_db_produces_xlsx(seeded_db) -> None:
     # dump_db should produce a file that openpyxl can open without error.
     buf = io.BytesIO()
-    dump_db(db, buf, NOW)
+    dump_db(seeded_db, buf, NOW)
     buf.seek(0)
     wb = load_workbook(buf)
     assert wb.active is not None
 
 
-def test_dump_db_header_matches_dump_fields(db) -> None:
+def test_dump_db_header_matches_dump_fields(seeded_db) -> None:
     # The header row must be exactly DUMP_FIELDS, in order.
-    ws = _dump(db).active
+    ws = _dump(seeded_db).active
     header = [cell.value for cell in ws[1]]
     assert header == DUMP_FIELDS
 
@@ -128,21 +128,21 @@ def test_dump_db_dump_fields_covers_field_map_and_tags() -> None:
     assert set(DUMP_FIELDS) == set(FIELD_MAP) | {TAGS_HEADER}
 
 
-def test_dump_db_row_count(db) -> None:
+def test_dump_db_row_count(seeded_db) -> None:
     # 4 books in the seed → 4 data rows (plus 1 header = 5 total rows in xlsx).
-    ws = _dump(db).active
+    ws = _dump(seeded_db).active
     assert ws.max_row == 5
 
 
-def test_dump_db_returns_book_count(db) -> None:
+def test_dump_db_returns_book_count(seeded_db) -> None:
     buf = io.BytesIO()
-    count = dump_db(db, buf, NOW)
+    count = dump_db(seeded_db, buf, NOW)
     assert count == 4
 
 
-def test_dump_db_values_round_trip(db) -> None:
+def test_dump_db_values_round_trip(seeded_db) -> None:
     # Book A's key fields must survive the dump intact.
-    ws = _dump(db).active
+    ws = _dump(seeded_db).active
     header = [cell.value for cell in ws[1]]
 
     # Find Book A's row (isbn13 = 9783423058087).
@@ -166,10 +166,10 @@ def test_dump_db_values_round_trip(db) -> None:
     assert book_a_row["tags"] == "Schweden, Thriller"
 
 
-def test_dump_db_revisionless_book_included(db) -> None:
+def test_dump_db_revisionless_book_included(seeded_db) -> None:
     # The photo book has no revision — it must appear with NULL bib fields,
     # not be absent from the dump.
-    ws = _dump(db).active
+    ws = _dump(seeded_db).active
     header = [cell.value for cell in ws[1]]
     photo_rows = []
     for row in ws.iter_rows(min_row=2, values_only=True):
@@ -185,21 +185,21 @@ def test_dump_db_revisionless_book_included(db) -> None:
     assert photo["tags"] == "Krimi"
 
 
-def test_dump_db_empty_db_writes_header_only(proto_db) -> None:
+def test_dump_db_empty_db_writes_header_only(empty_db) -> None:
     # An empty database should produce an xlsx with just the header row.
     buf = io.BytesIO()
-    count = dump_db(proto_db, buf, NOW)
+    count = dump_db(empty_db, buf, NOW)
     buf.seek(0)
     ws = load_workbook(buf).active
     assert ws.max_row == 1
     assert count == 0
 
 
-def test_dump_db_isbn13_is_text_cell(db) -> None:
+def test_dump_db_isbn13_is_text_cell(seeded_db) -> None:
     # ISBNs must be written as text cells — the whole reason for xlsx over CSV.
     # openpyxl data_type "s" means string; "n" would mean number (corrupted).
     buf = io.BytesIO()
-    dump_db(db, buf, NOW)
+    dump_db(seeded_db, buf, NOW)
     buf.seek(0)
     ws = load_workbook(buf).active
     header = [cell.value for cell in ws[1]]

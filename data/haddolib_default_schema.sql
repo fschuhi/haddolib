@@ -1,5 +1,5 @@
 -- ============================================================================
---  haddolib — PROTOTYPE schema (v0)  — two-week build
+--  haddolib -- the database schema
 -- ----------------------------------------------------------------------------
 --  book ──< book_revision     append-only FULL bibliographic snapshots
 --    │
@@ -9,14 +9,9 @@
 --    │
 --    └──< book_tag >── tag     personal tags, many-to-many
 --
---  Grain: ONE row in `book` = one physical book in the Magazin (edition and
---  copy collapsed; the lone real duplicate is deferred to "dreamland").
+--  Grain: ONE row in `book` = one physical book in the Magazin.
 --  Location lives inline on `book` as mutable attributes — safe, because the
 --  identity anchor is the surrogate book_id, not the location.
---
---  Supersedes (for prototype work) the five-grain dream schema in
---  data/haddolib_schema.sql, which stays in place, hibernated, with its own
---  green test suite. See PROTOTYPE_SCHEMA_DECISION.md for the full rationale.
 --
 --  SQLite notes (idioms that differ from other DBs):
 --    • STRICT tables enforce column types (SQLite >= 3.37, 2021). If any tool
@@ -31,7 +26,6 @@
 
 
 -- ── book : the physical book, its identity, location, and workflow status ───
--- Replaces the old `edition` + `copy` + `space` + current `location_event`.
 -- The surrogate book_id is the MERGE ANCHOR: it survives ingest, correction,
 -- and (later) relocation. A ||PH|| placeholder graduates into a resolved book
 -- by UPDATE on THIS row + a new revision — the id, location, and cover stay put.
@@ -47,7 +41,7 @@ CREATE TABLE book (
     book_note          TEXT,                       -- free fact: "annotated", "Cover fehlt" — edited in place, spawns no row
     book_status        TEXT,                       -- OPEN-TEXT non-cover workflow indicator (the "pile shrinking" field)
 
-    -- location, fused inline (no movement history in the prototype) -----------
+    -- location, fused inline (no movement history) ----------------------------
     room               TEXT,                       -- 'Magazin', 'Wohnzimmer', …
     space_label        TEXT,                       -- 'rack 03', 'cupboard A'
     bin_label          TEXT,                       -- box '01'..'25'; NULL where the space has no bins
@@ -99,7 +93,7 @@ CREATE INDEX ix_revision_book ON book_revision(book_id, created_at);
 
 
 -- ── cover : cover images — one row per image, references not bytes ──────────
--- Owner is a single book_id (no edition/copy split → no XOR check). `cover_ref`
+-- Owner is a single book_id. `cover_ref`
 -- holds the URL or a file path; the filename/where-to-find-it resolution is
 -- pushed to Excel/PyXLL, not stored here. `cover_source` and `cover_status` are
 -- OPEN TEXT so the cover workflow can evolve. A book may have zero covers;
@@ -140,8 +134,7 @@ CREATE TABLE book_tag (
 -- book_current : newest revision per book + identity + inline location +
 -- preferred cover ref. The shelf/list views and PyXLL read HERE.
 --
--- LEFT JOIN to the revision subquery (deliberate deviation from the decision
--- doc's INNER JOIN, ratified in the continuation session): a freshly-scanned or
+-- LEFT JOIN to the revision subquery: a freshly-scanned or
 -- not-found book has NO revision yet, and the view that is meant to show *all*
 -- the books must still show it — with NULL bibliographic fields. The
 -- ROW_NUMBER() rn = 1 predicate lives in the ON clause so a book with zero

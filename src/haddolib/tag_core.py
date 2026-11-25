@@ -3,7 +3,7 @@
 tag_core.py — The pure tag-management write layer for haddolib.
 
 All tag write operations live here. Reads (for display) stay in query_core.py.
-No PyXLL, no Excel — testable on macOS via the proto_db fixture.
+No PyXLL, no Excel — testable on macOS via the empty_db fixture.
 
 Public entry points:
 

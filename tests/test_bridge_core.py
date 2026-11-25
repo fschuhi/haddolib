@@ -1,5 +1,5 @@
 """
-tests/test_bridge_core.py — the PURE bridgehead-core (no pyxll), on proto_db.
+tests/test_bridge_core.py — the PURE bridgehead-core (no pyxll), on empty_db.
 
 These tests ARE the spec for crossing 1's marshalling: how a raw 2D range is
 sliced, how the driver's rejected-row capture becomes the rejected xlsx, how the
@@ -147,12 +147,12 @@ def test_pack_summary_scrubs_delimiters_from_values() -> None:
 # run_import — end to end: DB write + rejected xlsx + delimited return
 # ---------------------------------------------------------------------------
 
-def test_run_import_with_rejects_writes_xlsx_and_reports(proto_db, tmp_path) -> None:
+def test_run_import_with_rejects_writes_xlsx_and_reports(empty_db, tmp_path) -> None:
     good = _row(isbn13="9783423058087", title="Good", source="isbndb")
     bad = _row(isbn13="9783423058088", title="Bad cksum", source="isbndb")   # wrong check digit
     data = [tuple(HEADERS), good, bad]
 
-    packed = run_import(proto_db, data, NOW, str(tmp_path))
+    packed = run_import(empty_db, data, NOW, str(tmp_path))
     d = _vba_parse(packed)
 
     # the delimited summary reports the run correctly
@@ -163,7 +163,7 @@ def test_run_import_with_rejects_writes_xlsx_and_reports(proto_db, tmp_path) -> 
     assert d["rejected_rows_file"].endswith(STAMP_FILE)
 
     # the good book actually landed
-    assert proto_db.execute("SELECT COUNT(*) FROM book").fetchone()[0] == 1
+    assert empty_db.execute("SELECT COUNT(*) FROM book").fetchone()[0] == 1
 
     # the rejected xlsx exists at the stamped name
     xlsx_path = tmp_path / STAMP_FILE
@@ -186,14 +186,14 @@ def test_run_import_with_rejects_writes_xlsx_and_reports(proto_db, tmp_path) -> 
     assert ws.cell(row=2, column=isbn_col).data_type == "s"
 
 
-def test_run_import_with_non_numeric_reject_carries_detail(proto_db, tmp_path) -> None:
+def test_run_import_with_non_numeric_reject_carries_detail(empty_db, tmp_path) -> None:
     # A field-level reject populates rejected_detail end-to-end (column B in the file).
     headers = ["isbn13", "title", "revision_source", "height_cm"]
     good = ("9783423058087", "Good", "isbndb", 21.59)              # native number -> inserted
     bad = ("9781234567897", "Comma", "isbndb", "21,59")            # text cell -> non_numeric_value
     data = [tuple(headers), good, bad]
 
-    packed = run_import(proto_db, data, NOW, str(tmp_path))
+    packed = run_import(empty_db, data, NOW, str(tmp_path))
     d = _vba_parse(packed)
     assert d["inserted"] == "1"
     assert d["declined"] == "1"
@@ -206,10 +206,10 @@ def test_run_import_with_non_numeric_reject_carries_detail(proto_db, tmp_path) -
     assert record["isbn13"] == "9781234567897"                    # verbatim
 
 
-def test_run_import_all_clean_writes_no_file(proto_db, tmp_path) -> None:
+def test_run_import_all_clean_writes_no_file(empty_db, tmp_path) -> None:
     data = [tuple(HEADERS), _row(isbn13="9783423058087", title="Good", source="isbndb")]
 
-    packed = run_import(proto_db, data, NOW, str(tmp_path))
+    packed = run_import(empty_db, data, NOW, str(tmp_path))
     d = _vba_parse(packed)
 
     assert d["inserted"] == "1"

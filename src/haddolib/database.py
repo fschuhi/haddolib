@@ -54,7 +54,7 @@ DEFAULT_DB = r"C:\SQLite\haddolib\haddolib.db"
 # works regardless of the current working directory.
 #   src/haddolib/database.py  ->  .parent = haddolib/  ->  .parent = src/  ->  .parent = repo root
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_SCHEMA = _REPO_ROOT / "data" / "haddolib_prototype.sql"
+DEFAULT_SCHEMA = _REPO_ROOT / "data" / "haddolib_default_schema.sql"
 
 
 def connect(db_path: str = DEFAULT_DB) -> sqlite3.Connection:

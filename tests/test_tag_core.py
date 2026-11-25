@@ -1,8 +1,8 @@
 """
 tests/test_tag_core.py — Tests for the pure tag write layer (tag_core.py).
 
-These tests ARE the spec for tag_core.set_tags. They use proto_db (the
-prototype schema on an in-memory connection). Each test sets up its own
+These tests ARE the spec for tag_core.set_tags. They use empty_db (the
+schema on an in-memory connection). Each test sets up its own
 minimal book fixture — no shared seed — so the cases stay independent and
 easy to read.
 
@@ -57,168 +57,168 @@ def _all_tag_names(conn) -> list[str]:
 # Basic set / replace
 # ---------------------------------------------------------------------------
 
-def test_set_tags_adds_tags_to_untagged_book(proto_db) -> None:
-    book_id = _make_book(proto_db)
-    proto_db.commit()
+def test_set_tags_adds_tags_to_untagged_book(empty_db) -> None:
+    book_id = _make_book(empty_db)
+    empty_db.commit()
 
-    set_tags(proto_db, book_id, "Klassiker, SciFi")
-    proto_db.commit()
+    set_tags(empty_db, book_id, "Klassiker, SciFi")
+    empty_db.commit()
 
-    assert _tag_names_for_book(proto_db, book_id) == ["Klassiker", "SciFi"]
-
-
-def test_set_tags_replaces_existing_tags(proto_db) -> None:
-    book_id = _make_book(proto_db)
-    set_tags(proto_db, book_id, "Thriller, Schweden")
-    proto_db.commit()
-
-    set_tags(proto_db, book_id, "Klassiker")
-    proto_db.commit()
-
-    assert _tag_names_for_book(proto_db, book_id) == ["Klassiker"]
+    assert _tag_names_for_book(empty_db, book_id) == ["Klassiker", "SciFi"]
 
 
-def test_set_tags_clears_all_tags_on_empty_string(proto_db) -> None:
-    book_id = _make_book(proto_db)
-    set_tags(proto_db, book_id, "Thriller")
-    proto_db.commit()
+def test_set_tags_replaces_existing_tags(empty_db) -> None:
+    book_id = _make_book(empty_db)
+    set_tags(empty_db, book_id, "Thriller, Schweden")
+    empty_db.commit()
 
-    set_tags(proto_db, book_id, "")
-    proto_db.commit()
+    set_tags(empty_db, book_id, "Klassiker")
+    empty_db.commit()
 
-    assert _tag_names_for_book(proto_db, book_id) == []
-
-
-def test_set_tags_clears_all_tags_on_blank_string(proto_db) -> None:
-    book_id = _make_book(proto_db)
-    set_tags(proto_db, book_id, "Thriller")
-    proto_db.commit()
-
-    set_tags(proto_db, book_id, "   ")
-    proto_db.commit()
-
-    assert _tag_names_for_book(proto_db, book_id) == []
+    assert _tag_names_for_book(empty_db, book_id) == ["Klassiker"]
 
 
-def test_set_tags_on_already_untagged_book_is_harmless(proto_db) -> None:
-    book_id = _make_book(proto_db)
-    proto_db.commit()
+def test_set_tags_clears_all_tags_on_empty_string(empty_db) -> None:
+    book_id = _make_book(empty_db)
+    set_tags(empty_db, book_id, "Thriller")
+    empty_db.commit()
 
-    set_tags(proto_db, book_id, "")
-    proto_db.commit()
+    set_tags(empty_db, book_id, "")
+    empty_db.commit()
 
-    assert _tag_names_for_book(proto_db, book_id) == []
+    assert _tag_names_for_book(empty_db, book_id) == []
+
+
+def test_set_tags_clears_all_tags_on_blank_string(empty_db) -> None:
+    book_id = _make_book(empty_db)
+    set_tags(empty_db, book_id, "Thriller")
+    empty_db.commit()
+
+    set_tags(empty_db, book_id, "   ")
+    empty_db.commit()
+
+    assert _tag_names_for_book(empty_db, book_id) == []
+
+
+def test_set_tags_on_already_untagged_book_is_harmless(empty_db) -> None:
+    book_id = _make_book(empty_db)
+    empty_db.commit()
+
+    set_tags(empty_db, book_id, "")
+    empty_db.commit()
+
+    assert _tag_names_for_book(empty_db, book_id) == []
 
 
 # ---------------------------------------------------------------------------
 # Case-insensitive tag reuse
 # ---------------------------------------------------------------------------
 
-def test_set_tags_case_insensitive_reuses_existing_tag_row(proto_db) -> None:
+def test_set_tags_case_insensitive_reuses_existing_tag_row(empty_db) -> None:
     # Pre-create "Klassiker" in the tag table with that capitalisation.
-    tag_id = proto_db.execute(
+    tag_id = empty_db.execute(
         "INSERT INTO tag (name) VALUES (?)", ("Klassiker",)
     ).lastrowid
-    proto_db.commit()
+    empty_db.commit()
 
-    book_id = _make_book(proto_db)
+    book_id = _make_book(empty_db)
     # Pass the same tag in all-lowercase — must reuse the existing row.
-    set_tags(proto_db, book_id, "klassiker")
-    proto_db.commit()
+    set_tags(empty_db, book_id, "klassiker")
+    empty_db.commit()
 
     # Only one tag row should exist in the tag table.
-    assert _all_tag_names(proto_db) == ["Klassiker"]
+    assert _all_tag_names(empty_db) == ["Klassiker"]
     # The book is linked to it.
-    assert _tag_names_for_book(proto_db, book_id) == ["Klassiker"]
+    assert _tag_names_for_book(empty_db, book_id) == ["Klassiker"]
 
 
-def test_set_tags_first_spelling_wins_for_new_tag(proto_db) -> None:
+def test_set_tags_first_spelling_wins_for_new_tag(empty_db) -> None:
     # "scifi" is new; the first call establishes the spelling.
-    book_id = _make_book(proto_db)
-    set_tags(proto_db, book_id, "scifi")
-    proto_db.commit()
+    book_id = _make_book(empty_db)
+    set_tags(empty_db, book_id, "scifi")
+    empty_db.commit()
 
-    assert _all_tag_names(proto_db) == ["scifi"]
+    assert _all_tag_names(empty_db) == ["scifi"]
 
     # A second book uses "SciFi" — must reuse "scifi", not create a new row.
-    book_id2 = _make_book(proto_db, isbn13="9781234567897")
-    set_tags(proto_db, book_id2, "SciFi")
-    proto_db.commit()
+    book_id2 = _make_book(empty_db, isbn13="9781234567897")
+    set_tags(empty_db, book_id2, "SciFi")
+    empty_db.commit()
 
-    assert _all_tag_names(proto_db) == ["scifi"]
+    assert _all_tag_names(empty_db) == ["scifi"]
 
 
 # ---------------------------------------------------------------------------
 # Tag table is append-only (removed tags stay in tag)
 # ---------------------------------------------------------------------------
 
-def test_set_tags_does_not_delete_orphaned_tag_rows(proto_db) -> None:
-    book_id = _make_book(proto_db)
-    set_tags(proto_db, book_id, "Thriller, Schweden")
-    proto_db.commit()
+def test_set_tags_does_not_delete_orphaned_tag_rows(empty_db) -> None:
+    book_id = _make_book(empty_db)
+    set_tags(empty_db, book_id, "Thriller, Schweden")
+    empty_db.commit()
 
     # Replace with a different tag — Thriller and Schweden become orphans.
-    set_tags(proto_db, book_id, "Klassiker")
-    proto_db.commit()
+    set_tags(empty_db, book_id, "Klassiker")
+    empty_db.commit()
 
     # The book now only has Klassiker...
-    assert _tag_names_for_book(proto_db, book_id) == ["Klassiker"]
+    assert _tag_names_for_book(empty_db, book_id) == ["Klassiker"]
     # ...but Thriller and Schweden still exist in the tag table.
-    assert _all_tag_names(proto_db) == ["Klassiker", "Schweden", "Thriller"]
+    assert _all_tag_names(empty_db) == ["Klassiker", "Schweden", "Thriller"]
 
 
 # ---------------------------------------------------------------------------
 # Whitespace and duplicates in input
 # ---------------------------------------------------------------------------
 
-def test_set_tags_trims_whitespace_around_tag_names(proto_db) -> None:
-    book_id = _make_book(proto_db)
-    set_tags(proto_db, book_id, "  Klassiker  ,  SciFi  ")
-    proto_db.commit()
+def test_set_tags_trims_whitespace_around_tag_names(empty_db) -> None:
+    book_id = _make_book(empty_db)
+    set_tags(empty_db, book_id, "  Klassiker  ,  SciFi  ")
+    empty_db.commit()
 
-    assert _tag_names_for_book(proto_db, book_id) == ["Klassiker", "SciFi"]
+    assert _tag_names_for_book(empty_db, book_id) == ["Klassiker", "SciFi"]
 
 
-def test_set_tags_deduplicates_repeated_tags(proto_db) -> None:
-    book_id = _make_book(proto_db)
-    set_tags(proto_db, book_id, "Klassiker, Klassiker, klassiker")
-    proto_db.commit()
+def test_set_tags_deduplicates_repeated_tags(empty_db) -> None:
+    book_id = _make_book(empty_db)
+    set_tags(empty_db, book_id, "Klassiker, Klassiker, klassiker")
+    empty_db.commit()
 
     # Only one book_tag row and one tag row.
-    assert _tag_names_for_book(proto_db, book_id) == ["Klassiker"]
-    assert _all_tag_names(proto_db) == ["Klassiker"]
+    assert _tag_names_for_book(empty_db, book_id) == ["Klassiker"]
+    assert _all_tag_names(empty_db) == ["Klassiker"]
 
 
 # ---------------------------------------------------------------------------
 # Input validation
 # ---------------------------------------------------------------------------
 
-def test_set_tags_raises_on_zero_book_id(proto_db) -> None:
+def test_set_tags_raises_on_zero_book_id(empty_db) -> None:
     with pytest.raises(ValueError, match="positive integer book_id"):
-        set_tags(proto_db, 0, "Klassiker")
+        set_tags(empty_db, 0, "Klassiker")
 
 
-def test_set_tags_raises_on_negative_book_id(proto_db) -> None:
+def test_set_tags_raises_on_negative_book_id(empty_db) -> None:
     with pytest.raises(ValueError, match="positive integer book_id"):
-        set_tags(proto_db, -1, "Klassiker")
+        set_tags(empty_db, -1, "Klassiker")
 
 
-def test_set_tags_raises_on_string_book_id(proto_db) -> None:
+def test_set_tags_raises_on_string_book_id(empty_db) -> None:
     with pytest.raises(ValueError, match="positive integer book_id"):
-        set_tags(proto_db, "42", "Klassiker")
+        set_tags(empty_db, "42", "Klassiker")
 
 
 # ---------------------------------------------------------------------------
 # Does not commit (caller owns the transaction)
 # ---------------------------------------------------------------------------
 
-def test_set_tags_does_not_commit(proto_db) -> None:
+def test_set_tags_does_not_commit(empty_db) -> None:
     # If set_tags committed internally, a rollback afterwards would have no
     # effect and the tags would still be there.
-    book_id = _make_book(proto_db)
-    proto_db.commit()
+    book_id = _make_book(empty_db)
+    empty_db.commit()
 
-    set_tags(proto_db, book_id, "Klassiker")
-    proto_db.rollback()                         # undo the set_tags work
+    set_tags(empty_db, book_id, "Klassiker")
+    empty_db.rollback()                         # undo the set_tags work
 
-    assert _tag_names_for_book(proto_db, book_id) == []
+    assert _tag_names_for_book(empty_db, book_id) == []

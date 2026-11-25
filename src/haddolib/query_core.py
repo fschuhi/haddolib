@@ -3,7 +3,7 @@
 query_core.py — The pure read layer for haddolib.
 
 All queries read from `book_current` (the view), never the base tables.
-No PyXLL, no Excel — testable on macOS via the proto_db fixture.
+No PyXLL, no Excel — testable on macOS via the empty_db fixture.
 
 Two kinds of public entry points:
 

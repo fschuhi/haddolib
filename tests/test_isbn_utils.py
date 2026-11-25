@@ -1,8 +1,8 @@
 """
-tests/test_isbndb_utils.py — Tests for the ISBNdb selection helpers
+tests/test_isbndb_utils.py -- Tests for the ISBNdb selection helpers
 (extract_year, select_best_matching_year) in isbndb_utils.py.
 
-extract_dimensions() and extract_record() are not yet covered here — this
+extract_dimensions() and extract_record() are not yet covered here -- this
 file targets only the new year-aware selection logic added this session.
 
 The two-edition fixture below is a trimmed real API response (query: "Dalai

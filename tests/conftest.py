@@ -1,5 +1,5 @@
 """
-conftest.py — Shared pytest fixtures for the haddolib test suite.
+conftest.py -- Shared pytest fixtures for the haddolib test suite.
 
 pytest auto-discovers this file: any fixture defined here is available to every
 test module by name, with no import. (Background, if useful: "pytest fixtures",

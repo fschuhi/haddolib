@@ -3,16 +3,16 @@
 roster_import.py -- Writing a roster row into the database.
 
 roster.py (pure) decides what a row MEANS; this module WRITES it. Still no pyxll
-— plain sqlite3, testable on macOS through the empty_db fixture.
+-- plain sqlite3, testable on macOS through the empty_db fixture.
 
-Scope — the FIRST bridge crossing, IMPORT, is INSERT-ONLY. A row is either
+Scope -- the FIRST bridge crossing, IMPORT, is INSERT-ONLY. A row is either
 inserted as a new book or declined as a duplicate by the batch driver; import
 never updates an existing book. Managing tags, covers, and bibliography are
-separate, later, dialog-driven bridge crossings — none of their machinery lives
+separate, later, dialog-driven bridge crossings -- none of their machinery lives
 here.
 
-This slice is the per-row INSERT (insert_book_row). The batch driver — dedup
-pre-load, decline/insert loop, per-row commit, summary — is the next slice and
+This slice is the per-row INSERT (insert_book_row). The batch driver -- dedup
+pre-load, decline/insert loop, per-row commit, summary -- is the next slice and
 lives alongside this once built.
 """
 
@@ -22,7 +22,7 @@ from haddolib.common import as_int, as_real, as_text, is_valid_isbn13
 from haddolib.roster import FIELD_MAP, ParsedRow, map_row, unknown_headers
 
 # Revision keys that are metadata, not bibliography. Their presence alone does
-# NOT justify writing a book_revision row — a not-found book may carry a bare
+# NOT justify writing a book_revision row -- a not-found book may carry a bare
 # source with every real field blank, and should stay revisionless (it then
 # shows "bare" through book_current's LEFT JOIN, which is the point).
 _REVISION_NON_BIB = frozenset({"source", "revision_comment"})
@@ -69,20 +69,20 @@ def _resolve_tags(conn, names) -> list[int]:
 def insert_book_row(conn, parsed: ParsedRow, created_at: str) -> int:
     """Insert ONE new book and its satellites; return the new book_id.
 
-    Writes, in this order (the order matters for the circular FK — book first
+    Writes, in this order (the order matters for the circular FK -- book first
     with preferred_cover_id NULL, then the cover, then point the book at it):
 
-      • book          — always (identity + inline location + book_status + book_note).
-      • book_revision — only if there is real bibliographic data; a source is
-                        then required (raises ValueError if bib data is present
-                        without one — that's a roster-setup error, surfaced loud).
-      • cover         — only if a cover_ref is present. The first cover becomes the
-                        book's preferred_cover_id (auto-promote). cover_source /
-                        cover_status are written only when supplied, so a blank
-                        cover_status falls through to the schema default ('unreviewed').
-      • book_tag      — one link per resolved tag (unknown tags auto-added).
+      - book          -- always (identity + inline location + book_status + book_note).
+      - book_revision -- only if there is real bibliographic data; a source is
+                         then required (raises ValueError if bib data is present
+                         without one -- that's a roster-setup error, surfaced loud).
+      - cover         -- only if a cover_ref is present. The first cover becomes the
+                         book's preferred_cover_id (auto-promote). cover_source /
+                         cover_status are written only when supplied, so a blank
+                         cover_status falls through to the schema default ('unreviewed').
+      - book_tag      -- one link per resolved tag (unknown tags auto-added).
 
-    Does NOT commit and does NOT check for duplicates — the batch driver owns
+    Does NOT commit and does NOT check for duplicates -- the batch driver owns
     dedup and the per-row commit. created_at is supplied by the caller so a whole
     import run shares one timestamp.
     """
@@ -107,14 +107,14 @@ def insert_book_row(conn, parsed: ParsedRow, created_at: str) -> int:
     )
     book_id = cur.lastrowid
 
-    # book_revision — only when there's real bibliography to record.
+    # book_revision -- only when there's real bibliography to record.
     revision = parsed.revision
     if _has_bibliographic_data(revision):
         source = revision.get("source")
         if source is None:
             raise ValueError(
                 f"book_id {book_id}: bibliographic data present but no "
-                f"revision_source — cannot write a revision"
+                f"revision_source -- cannot write a revision"
             )
         cols = ["book_id", "source", "created_at"]
         vals = {"book_id": book_id, "source": source, "created_at": created_at}
@@ -129,7 +129,7 @@ def insert_book_row(conn, parsed: ParsedRow, created_at: str) -> int:
             vals,
         )
 
-    # cover — only when there's a cover_ref; first cover becomes preferred.
+    # cover -- only when there's a cover_ref; first cover becomes preferred.
     cover = parsed.cover
     cover_ref = cover.get("cover_ref")
     if cover_ref is not None:
@@ -152,7 +152,7 @@ def insert_book_row(conn, parsed: ParsedRow, created_at: str) -> int:
             (cover_id, book_id),
         )
 
-    # tags — resolve (auto-add unknown), then link.
+    # tags -- resolve (auto-add unknown), then link.
     for tag_id in _resolve_tags(conn, parsed.tags):
         conn.execute(
             "INSERT INTO book_tag (book_id, tag_id) VALUES (?, ?)",
@@ -163,22 +163,22 @@ def insert_book_row(conn, parsed: ParsedRow, created_at: str) -> int:
 
 
 # ---------------------------------------------------------------------------
-# Per-row field validators — pure, raw-value checks the driver runs around the
+# Per-row field validators -- pure, raw-value checks the driver runs around the
 # identity decision. The pattern: a small (raw_row) -> (reason_code, detail) |
 # None function, first hit rejects. reason_code is the stable, greppable token
 # (column A of the rejected file); detail is free text naming the offending cell
 # (column B) so the fix-loop knows *which* cell to touch.
 #
 # Two slots, by necessity not taste:
-#   • BEFORE map_row — checks that must pre-empt map_row's eager coercion (a
+#   - BEFORE map_row -- checks that must pre-empt map_row's eager coercion (a
 #     non-numeric cell would crash as_real OUTSIDE the per-row try/except).
 #     _check_numeric_types lives here.
-#   • AFTER the identity decision — checks free of that constraint, placed late
+#   - AFTER the identity decision -- checks free of that constraint, placed late
 #     so a row's identity reason (duplicate / no-key / invalid-ISBN) wins and
 #     these checks only reach a row that would otherwise insert.
 #     _check_status_blank and _check_incomplete_location live here.
 # Adding the next hardening check (see TODO.md) is one function here and one
-# branch in the right slot — not growing an if-wall in-line.
+# branch in the right slot -- not growing an if-wall in-line.
 # ---------------------------------------------------------------------------
 
 # Headers whose value must be a native number (or blank). Derived from FIELD_MAP
@@ -196,19 +196,19 @@ def _check_numeric_types(raw_row: dict) -> tuple[str, str] | None:
 
     A genuine Excel number reaches Python as int/float (German Excel only
     *displays* 21.59 as "21,59"; the stored value is the float). A *text* cell
-    reaches it as str — and is wrong regardless of whether it would parse: both a
+    reaches it as str -- and is wrong regardless of whether it would parse: both a
     German-comma "21,59" (which as_real would crash on) and a dotted "21.59"
     (which as_real would silently accept) are caught here as one stable reason.
 
     Blank is fine: None or "" (or whitespace-only) becomes NULL downstream, never
-    a reject — empty dimension cells are the common case in real data.
+    a reject -- empty dimension cells are the common case in real data.
 
     Runs on the RAW row, BEFORE map_row, so a bad cell is declined cleanly and
     never reaches map_row's eager coercion (which is not inside the per-row
     try/except and would otherwise abort the whole run on a German comma).
 
-    Returns (reason_code, detail) on a hit — the detail names the offending cell,
-    e.g. "height_cm = '21,59' is not a number" — or None when the row is clean.
+    Returns (reason_code, detail) on a hit -- the detail names the offending cell,
+    e.g. "height_cm = '21,59' is not a number" -- or None when the row is clean.
     """
     for header, value in raw_row.items():
         key = (header or "").strip()
@@ -220,12 +220,12 @@ def _check_numeric_types(raw_row: dict) -> tuple[str, str] | None:
 
 
 def _check_status_blank(raw_row: dict) -> tuple[str, str] | None:
-    """Reject a row whose PRESENT book_status cell is blank — status is required.
+    """Reject a row whose PRESENT book_status cell is blank -- status is required.
 
     Semantics A: this guards a book_status column that is actually present. A sheet
     that omits book_status entirely is a separate, header-level concern (see
     TODO.md: 'required status column') and is NOT caught here. When the column is
-    present, a blank cell (None / "" / whitespace — folded to None by as_text) is
+    present, a blank cell (None / "" / whitespace -- folded to None by as_text) is
     a hard reject, not a NULL: book_status is the pile-shrinking workflow field, so
     an unset value is a roster gap to fix, not a default to accept.
 
@@ -234,7 +234,7 @@ def _check_status_blank(raw_row: dict) -> tuple[str, str] | None:
     "column missing" (semantics B, not ours) apart from "column present, blank".
 
     Unlike _check_numeric_types this need not precede map_row (it cannot crash
-    coercion), so the driver calls it LATE — after the identity decision — so a
+    coercion), so the driver calls it LATE -- after the identity decision -- so a
     duplicate / no-key / invalid-ISBN row reports its own reason first.
 
     Returns (reason_code, detail) on a hit, else None.
@@ -252,18 +252,18 @@ def _check_incomplete_location(parsed: ParsedRow) -> tuple[str, str] | None:
 
     The chain is room > space_label > bin_label. Two rules, innermost first
     (first hit wins):
-      • bin_label present but space_label absent → a bin with no space.
-      • space_label present but room absent       → a space with no room.
+      - bin_label present but space_label absent -> a bin with no space.
+      - space_label present but room absent       -> a space with no room.
 
     Reads the MAPPED book bucket, not the raw row: a parent that is blank and a
     parent whose column is simply absent both read as None, and either orphans
-    the present child — a hierarchy is broken regardless of WHY the parent is
+    the present child -- a hierarchy is broken regardless of WHY the parent is
     missing. This is a deliberate asymmetry with _check_status_blank, where
     column presence was the opt-in signal to a required-field gate; here there is
     no opt-in, only structure.
 
     A FULLY-blank location (all three absent) is fine: "elsewhere in the house"
-    books carry no shelf location and pass untouched — only a PARTIAL hierarchy
+    books carry no shelf location and pass untouched -- only a PARTIAL hierarchy
     rejects. `position` is intentionally NOT guarded (a space may have no bins,
     so a position could legitimately order within a space; see TODO.md).
 
@@ -284,7 +284,7 @@ def _check_incomplete_location(parsed: ParsedRow) -> tuple[str, str] | None:
 
 
 # ---------------------------------------------------------------------------
-# The batch driver (2d) — the FIRST bridge crossing: import, insert-only.
+# The batch driver (2d) -- the FIRST bridge crossing: import, insert-only.
 # ---------------------------------------------------------------------------
 
 @dataclass
@@ -297,13 +297,13 @@ class ImportSummary:
 
     rejected_rows captures every row that did NOT insert, as a (reason, detail,
     raw values) triple in sheet order:
-      • reason — the stable, greppable token for a clean decline
-        ('non_numeric_value', 'invalid_isbn13', …); for an errored row it is the
+      - reason -- the stable, greppable token for a clean decline
+        ('non_numeric_value', 'invalid_isbn13', ...); for an errored row it is the
         exception MESSAGE (the actionable thing to fix at the workbench).
-      • detail — free text naming the offending cell for a FIELD-level check
+      - detail -- free text naming the offending cell for a FIELD-level check
         ("height_cm = '21,59' is not a number"); empty "" for identity checks and
         errors, where the reason alone says enough.
-      • raw values — the row's values verbatim, as received (a blank stays blank,
+      - raw values -- the row's values verbatim, as received (a blank stays blank,
         uncoerced), so the bridgehead can write them back out unchanged for
         fix-and-re-import.
     This record is values-only on purpose: the column HEADERS live one layer up,
@@ -353,8 +353,8 @@ class ImportSummary:
 def _load_dedup_keys(conn) -> tuple[set, set]:
     """Pre-load the two dedup key sets once (not per row).
 
-    existing_isbn13    — every non-NULL book.isbn13.
-    existing_photo_ref — cover.cover_ref of covers on books that have NO isbn13,
+    existing_isbn13    -- every non-NULL book.isbn13.
+    existing_photo_ref -- cover.cover_ref of covers on books that have NO isbn13,
         i.e. PHOTO books only. API placeholder URLs ride on ISBN books, which are
         excluded by the WHERE, so a shared 'missing cover' URL can never poison
         the photo-dedup set.
@@ -375,17 +375,17 @@ def _load_dedup_keys(conn) -> tuple[set, set]:
 def import_roster(conn, headers, rows, created_at: str) -> ImportSummary:
     """Import a roster sheet: one row per physical book, INSERT-ONLY.
 
-    headers — the sheet's header row (column ORDER is free; the STRING maps).
-    rows    — an iterable of value sequences, one per book (no header row).
-    created_at — one timestamp for the whole run, supplied by the caller (the
-                 bridge); relayed unchanged to every insert.
+    headers -- the sheet's header row (column ORDER is free; the STRING maps).
+    rows    -- an iterable of value sequences, one per book (no header row).
+    created_at -- one timestamp for the whole run, supplied by the caller (the
+                  bridge); relayed unchanged to every insert.
 
-    Per row, the numeric field check runs FIRST — before map_row's eager
+    Per row, the numeric field check runs FIRST -- before map_row's eager
     coercion, which a non-numeric cell would crash. Survivors are mapped, then
     the dedup decision is STAGGERED on isbn13-presence:
-      • has isbn13   → duplicate iff that isbn13 already exists (cover_ref is irrelevant);
-      • no isbn13    → duplicate iff that cover_ref already exists; and a row with
-                       neither isbn13 nor cover_ref has no identity key → declined.
+      - has isbn13   -> duplicate iff that isbn13 already exists (cover_ref is irrelevant);
+      - no isbn13    -> duplicate iff that cover_ref already exists; and a row with
+                        neither isbn13 nor cover_ref has no identity key -> declined.
     Once identity is settled, LATE content checks run (status_blank, then
     incomplete_location): placed here so an identity reason wins for a row that is
     also blank-on-status or partial-on-location, and so such a row is rejected
@@ -397,7 +397,7 @@ def import_roster(conn, headers, rows, created_at: str) -> ImportSummary:
     aborts the run.
 
     Every row that does NOT insert is also appended to summary.rejected_rows as
-    (reason, detail, raw values) — the durable source for the rejected-rows file
+    (reason, detail, raw values) -- the durable source for the rejected-rows file
     the bridge writes (see ImportSummary).
     """
     summary = ImportSummary(unknown_headers=unknown_headers(headers))
@@ -459,13 +459,13 @@ def import_roster(conn, headers, rows, created_at: str) -> ImportSummary:
         try:
             insert_book_row(conn, parsed, created_at)
             conn.commit()
-        except Exception as exc:        # noqa: BLE001 — per-row isolation is the point
+        except Exception as exc:        # noqa: BLE001 -- per-row isolation is the point
             conn.rollback()
             summary.errors.append((index, str(exc)))
             summary.rejected_rows.append((str(exc), "", tuple(values)))
             continue
 
-        # commit succeeded → the key is now real; guard the rest of the batch.
+        # commit succeeded -> the key is now real; guard the rest of the batch.
         if new_key[0] == "isbn13":
             existing_isbn13.add(new_key[1])
         else:

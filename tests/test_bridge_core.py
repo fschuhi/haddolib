@@ -1,5 +1,5 @@
 """
-tests/test_bridge_core.py — the PURE bridgehead-core (no pyxll), on empty_db.
+tests/test_bridge_core.py -- the PURE bridgehead-core (no pyxll), on empty_db.
 
 These tests ARE the spec for crossing 1's marshalling: how a raw 2D range is
 sliced, how the driver's rejected-row capture becomes the rejected xlsx, how the
@@ -21,7 +21,7 @@ from haddolib.bridge_core import (
 )
 from haddolib.roster_import import ImportSummary
 
-NOW = datetime(2026, 6, 15, 12, 0, 0)            # fixed → deterministic stamps
+NOW = datetime(2026, 6, 15, 12, 0, 0)            # fixed -> deterministic stamps
 STAMP_FILE = "20260615_120000_rejected.xlsx"
 
 # Header order deliberately NOT schema order, to prove the string maps, not order.
@@ -44,7 +44,7 @@ def _vba_parse(s: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# parse_block — slice, guard, strip reserved columns
+# parse_block -- slice, guard, strip reserved columns
 # ---------------------------------------------------------------------------
 
 def test_parse_block_splits_header_from_rows() -> None:
@@ -89,7 +89,7 @@ def test_parse_block_flat_row_raises() -> None:
 
 
 # ---------------------------------------------------------------------------
-# build_rejected_csv_rows — the header re-enters here; reason + detail lead
+# build_rejected_csv_rows -- the header re-enters here; reason + detail lead
 # ---------------------------------------------------------------------------
 
 def test_build_rejected_csv_rows_shape_detail_and_verbatim() -> None:
@@ -113,7 +113,7 @@ def test_build_rejected_csv_rows_shape_detail_and_verbatim() -> None:
 
 
 # ---------------------------------------------------------------------------
-# pack_summary — the delimited return channel, VBA-parseable
+# pack_summary -- the delimited return channel, VBA-parseable
 # ---------------------------------------------------------------------------
 
 def test_pack_summary_round_trips_through_vba_split() -> None:
@@ -137,14 +137,14 @@ def test_pack_summary_scrubs_delimiters_from_values() -> None:
     # A header carrying a stray tab/newline must not break the channel.
     s = ImportSummary(inserted=1, unknown_headers=["bad\tcol", "line\nbreak"])
     d = _vba_parse(pack_summary(s, ""))
-    # exactly the 11 known keys parsed back — no spurious lines from injected \n/\t
+    # exactly the 11 known keys parsed back -- no spurious lines from injected \n/\t
     assert len(d) == 11
     assert "\t" not in d["unknown_columns"] and "\n" not in d["unknown_columns"]
     assert d["rejected_rows_file"] == ""
 
 
 # ---------------------------------------------------------------------------
-# run_import — end to end: DB write + rejected xlsx + delimited return
+# run_import -- end to end: DB write + rejected xlsx + delimited return
 # ---------------------------------------------------------------------------
 
 def test_run_import_with_rejects_writes_xlsx_and_reports(empty_db, tmp_path) -> None:
@@ -181,7 +181,7 @@ def test_run_import_with_rejects_writes_xlsx_and_reports(empty_db, tmp_path) -> 
     assert record["isbn13"] == "9783423058088"                    # verbatim value
     assert record["title"] == "Bad cksum"
 
-    # and the ISBN stayed a TEXT cell — the whole reason for the xlsx switch
+    # and the ISBN stayed a TEXT cell -- the whole reason for the xlsx switch
     isbn_col = header.index("isbn13") + 1                          # 1-based
     assert ws.cell(row=2, column=isbn_col).data_type == "s"
 

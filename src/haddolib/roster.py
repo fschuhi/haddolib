@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-roster.py — Roster-sheet import: turn one physical-book row into the database.
+roster.py -- Roster-sheet import: turn one physical-book row into the database.
 
 The roster sheet (in racks.xlsm) is ONE ROW PER PHYSICAL BOOK. Each row carries
 the book's identity (isbn13, or blank for a photo book), its inline location, the
@@ -9,22 +9,22 @@ comma-delimited tag list. Excel does the lookups; Python just writes the
 database (book / book_revision / cover / tag / book_tag).
 
 This module is the PURE mapping layer: no database, no pyxll, importable and
-testable anywhere (including macOS). It answers one question per row — "what does
-this row mean, as book / revision / cover / tags?" — and nothing else. The
+testable anywhere (including macOS). It answers one question per row -- "what does
+this row mean, as book / revision / cover / tags?" -- and nothing else. The
 DB-writing layers (insert, update, the import driver) and the PyXLL COM bridge
 build on top of it.
 
-Header vocabulary — column ORDER is free; the header STRING is what maps:
-  • All columns use unique, unambiguous names (no dot-qualified names needed).
-  • A column with a blank / missing header is a deliberately-empty column: skipped.
-  • An unrecognized non-blank header is reported by unknown_headers() — never fatal.
-  • A blank CELL in a recognized column becomes NULL (Excel UDFs return "" rather
+Header vocabulary -- column ORDER is free; the header STRING is what maps:
+  - All columns use unique, unambiguous names (no dot-qualified names needed).
+  - A column with a blank / missing header is a deliberately-empty column: skipped.
+  - An unrecognized non-blank header is reported by unknown_headers() -- never fatal.
+  - A blank CELL in a recognized column becomes NULL (Excel UDFs return "" rather
     than an empty cell, so "" -> NULL; see as_text/as_int/as_real in common.py).
 
 NB on validation: this layer does NOT validate (isbn13 length/checksum, required
 location, etc.). It maps. Validation lives in the import DRIVER (roster_import.py
-import_roster) — e.g. is_valid_isbn13 declines a bad checksum as invalid_isbn13,
-before dedup — so every decline lands in one unified ImportSummary. The bridgehead
+import_roster) -- e.g. is_valid_isbn13 declines a bad checksum as invalid_isbn13,
+before dedup -- so every decline lands in one unified ImportSummary. The bridgehead
 stays thin (strip a leading decline_reason column, split header from rows, hand
 off). The schema's own CHECK/NOT NULL constraints are the backstop.
 """
@@ -86,7 +86,7 @@ class ParsedRow:
 
     book / revision / cover are each {column: value} dicts containing ONLY the
     columns that were present (recognized, non-blank header) in the row. An
-    absent column is simply not a key — so the DB layer can distinguish "not
+    absent column is simply not a key -- so the DB layer can distinguish "not
     supplied" from "supplied as NULL" should it ever need to. tags is the parsed,
     de-duplicated, order-preserving tag list (possibly empty).
     """
@@ -131,17 +131,17 @@ def map_row(row: dict) -> ParsedRow:
             continue
         spec = FIELD_MAP.get(key)
         if spec is None:
-            continue                      # unrecognized header — see unknown_headers()
+            continue                      # unrecognized header -- see unknown_headers()
         bucket, column, coerce = spec
         targets[bucket][column] = coerce(value)
     return parsed
 
 
 def unknown_headers(headers) -> list[str]:
-    """Non-blank header strings that map to nothing — reported, never fatal.
+    """Non-blank header strings that map to nothing -- reported, never fatal.
 
     A property of the HEADER ROW (compute once in the import driver), not of each
-    row. Blank/missing headers are NOT unknown — they are deliberately-empty
+    row. Blank/missing headers are NOT unknown -- they are deliberately-empty
     columns. Order-preserving and de-duplicated.
     """
     known = set(FIELD_MAP) | {TAGS_HEADER}

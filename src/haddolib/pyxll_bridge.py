@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-src/haddolib/pyxll_bridge.py — PyXLL integration layer for haddolib.
+src/haddolib/pyxll_bridge.py -- PyXLL integration layer for haddolib.
 
 The @xl_func / @xl_macro entry points that expose the Python backend to Excel
 (the macros via VBA's Application.Run). These are THIN: marshalling and DB-
-connection housekeeping only. All real work — parse, import, rejected-CSV,
-summary packing, queries, handle state — lives in bridge_core / query_core /
+connection housekeeping only. All real work -- parse, import, rejected-CSV,
+summary packing, queries, handle state -- lives in bridge_core / query_core /
 catalog, which are unit-tested on macOS WITHOUT PyXLL. This module can
 therefore only be exercised in the Windows VM where PyXLL is installed.
 
-Signature note (verified — see signature research): @xl_macro takes an
+Signature note (verified -- see signature research): @xl_macro takes an
 ARGUMENT-ONLY signature string, "var[][] data". The xl_func-style ": <returntype>"
 is invalid for a macro. The function still RETURNS its value; VBA receives it
-through Application.Run (the scalar-string path of BRIDGE_CONTRACT.md §4). That
-return path — not the worksheet-cell path — is what carries the summary back.
+through Application.Run (the scalar-string path of BRIDGE_CONTRACT.md section 4). That
+return path -- not the worksheet-cell path -- is what carries the summary back.
 
 Handle catalog:
   The module-level _CATALOG instance (HandleCatalog) manages opaque handle
@@ -27,17 +27,17 @@ Handle catalog:
   from a previous PyXLL reload immediately obvious.
 
   VBA contract:
-    1. Call one of the haddo_books_by_* functions → receive a handle string.
+    1. Call one of the haddo_books_by_* functions -> receive a handle string.
     2. Use haddo_len / haddo_get_field to read data.
     3. Always call haddo_release in an On Error GoTo Cleanup block.
     4. Call haddo_sweep_handles from Workbook_Open or a maintenance macro to
        evict any handles that leaked through a crash (default TTL: 600 s).
 
   Kind strings (embedded in handle, visible in haddo_handles diagnostic):
-    "books_by_bin"    — books_by_bin()    result
-    "books_by_title"  — books_by_title()  result
-    "books_by_author" — books_by_author() result
-    "books_by_tags"   — books_by_tags()   result
+    "books_by_bin"    -- books_by_bin()    result
+    "books_by_title"  -- books_by_title()  result
+    "books_by_author" -- books_by_author() result
+    "books_by_tags"   -- books_by_tags()   result
 
   haddo_len / haddo_get_field / haddo_release are kind-agnostic: any handle
   from any haddo_books_by_* function works. The kind is diagnostic only.
@@ -93,9 +93,9 @@ def haddo_import(data):
     Thin shell: stamp one 'now' for the whole run, open the live DB with the
     connection contract applied, delegate everything to run_import, and ALWAYS
     close the connection. Returns the delimited summary string that VBA Splits
-    into a Scripting.Dictionary (BRIDGE_CONTRACT.md §4).
+    into a Scripting.Dictionary (BRIDGE_CONTRACT.md section 4).
 
-    Per-call open/close keeps the engine stateless — no module-level connection.
+    Per-call open/close keeps the engine stateless -- no module-level connection.
     """
     now = datetime.now()
     conn = connect()                  # DEFAULT_DB is the live Windows DB; contract applied
@@ -124,10 +124,10 @@ def haddo_query(name: str, *params):
     type string. The return type "var" lets the function return either a string
     or an integer depending on which query is called.
 
-    A bad query name or wrong parameter count surfaces as #VALUE! in the cell —
+    A bad query name or wrong parameter count surfaces as #VALUE! in the cell --
     the formula is wrong, fix it. No special wrapping is needed.
 
-    Per-call open/close keeps the engine stateless — no module-level connection.
+    Per-call open/close keeps the engine stateless -- no module-level connection.
     """
     conn = connect()
     try:
@@ -149,13 +149,13 @@ def haddo_books_by_bin(room: str, space: str, bin_label: str) -> str:
 
     Opens the DB, calls books_by_bin(), closes the DB, stores the list[dict]
     in the private catalog, and returns an opaque handle string. The handle is
-    a plain Excel string value — no PyXLL object cache involved.
+    a plain Excel string value -- no PyXLL object cache involved.
 
     Use haddo_get_field / haddo_len to read data, and haddo_release when done.
     Handles expire after 600 s of inactivity; call haddo_sweep_handles from a
     maintenance macro to evict any that leaked through a crash.
 
-    Per-call open/close keeps the engine stateless — no module-level connection.
+    Per-call open/close keeps the engine stateless -- no module-level connection.
     """
     conn = connect()
     try:
@@ -178,7 +178,7 @@ def haddo_books_by_title(search: str) -> str:
 
     Raises #VALUE! if search is blank.
 
-    Per-call open/close keeps the engine stateless — no module-level connection.
+    Per-call open/close keeps the engine stateless -- no module-level connection.
     """
     conn = connect()
     try:
@@ -201,7 +201,7 @@ def haddo_books_by_author(search: str) -> str:
 
     Raises #VALUE! if search is blank.
 
-    Per-call open/close keeps the engine stateless — no module-level connection.
+    Per-call open/close keeps the engine stateless -- no module-level connection.
     """
     conn = connect()
     try:
@@ -219,14 +219,14 @@ def haddo_books_by_tags(tags: str, match_all: bool) -> str:
         handle = Application.Run("haddo_books_by_tags", "Afrika, Tiere", True)
         handle = Application.Run("haddo_books_by_tags", "Afrika, Tiere", False)
 
-    tags      — comma-separated tag names; whitespace around commas is ignored.
-    match_all — True:  only books carrying ALL listed tags (AND logic).
-                False: books carrying ANY of the listed tags (OR logic).
+    tags      -- comma-separated tag names; whitespace around commas is ignored.
+    match_all -- True:  only books carrying ALL listed tags (AND logic).
+                 False: books carrying ANY of the listed tags (OR logic).
 
     Returns a handle usable with haddo_len / haddo_get_field / haddo_release.
     Raises #VALUE! if tags is blank or contains only whitespace.
 
-    Per-call open/close keeps the engine stateless — no module-level connection.
+    Per-call open/close keeps the engine stateless -- no module-level connection.
     """
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
     conn = connect()
@@ -248,14 +248,14 @@ def haddo_set_tags(book_id: int, tags_csv: str) -> str:
     Called from VBA via Application.Run:
         Application.Run "haddo_set_tags", book_id, "Klassiker, SciFi"
 
-    book_id   — the integer book.book_id (retrieve via haddo_get_field on an
-                existing handle, e.g. GetHaddoBooksFieldInRow(handle, row, "book_id")).
-    tags_csv  — comma-delimited tag names; whitespace around names is trimmed.
-                An empty or blank string clears all tags for the book.
+    book_id   -- the integer book.book_id (retrieve via haddo_get_field on an
+                 existing handle, e.g. GetHaddoBooksFieldInRow(handle, row, "book_id")).
+    tags_csv  -- comma-delimited tag names; whitespace around names is trimmed.
+                 An empty or blank string clears all tags for the book.
 
     Returns "ok" on success. Raises #VALUE! if book_id is not a positive integer.
 
-    Per-call open/close keeps the engine stateless — no module-level connection.
+    Per-call open/close keeps the engine stateless -- no module-level connection.
     """
     conn = connect()
     try:
@@ -275,19 +275,19 @@ def haddo_tag_stats(order_by_count: bool = True):
     """Return a 2D table of all tags with their book counts.
 
     Use from a worksheet cell:
-        =haddo_tag_stats()        — count order (most-used first)
-        =haddo_tag_stats(FALSE)   — alphabetical order (for combobox sources)
+        =haddo_tag_stats()        -- count order (most-used first)
+        =haddo_tag_stats(FALSE)   -- alphabetical order (for combobox sources)
 
     order_by_count (default True): True = count descending, name ascending as
         tiebreaker; False = alphabetical by name only.
 
     Returns a header row ["tag", "count"] followed by one data row per tag.
-    Tags with no linked books (orphans) appear with count 0 — useful for
+    Tags with no linked books (orphans) appear with count 0 -- useful for
     spotting what a prune_tags run would remove.
 
     Returns a header-only table when no tags exist.
 
-    Per-call open/close keeps the engine stateless — no module-level connection.
+    Per-call open/close keeps the engine stateless -- no module-level connection.
     """
     conn = connect()
     try:
@@ -308,7 +308,7 @@ def haddo_refresh_handle(handle: str) -> str:
     After a write operation (e.g. haddo_set_tags), the existing snapshot held
     under a handle is stale. Call this to pull fresh rows for all book_ids in
     the snapshot, replacing the old data in place. The handle string is
-    unchanged — VBA holds the same variable and sees updated data on the next
+    unchanged -- VBA holds the same variable and sees updated data on the next
     haddo_get_field call.
 
     Called from VBA via Application.Run:
@@ -316,7 +316,7 @@ def haddo_refresh_handle(handle: str) -> str:
 
     Returns "ok" on success. Raises #VALUE! if the handle is unknown or stale.
 
-    Per-call open/close keeps the engine stateless — no module-level connection.
+    Per-call open/close keeps the engine stateless -- no module-level connection.
     """
     current_rows = _CATALOG.get(handle)
     book_ids = [row["book_id"] for row in current_rows]
@@ -330,7 +330,7 @@ def haddo_refresh_handle(handle: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Shared handle accessors — kind-agnostic, work with any haddo_books_by_* handle
+# Shared handle accessors -- kind-agnostic, work with any haddo_books_by_* handle
 # ---------------------------------------------------------------------------
 
 @xl_func("str handle, int row, str field: var")
@@ -344,11 +344,11 @@ def haddo_get_field(handle: str, row: int, field: str):
     field is any key present in the book_current dict (e.g. "title", "isbn13",
     "cover_ref", "tags").
 
-    Works with handles from any haddo_books_by_* function — kind-agnostic.
+    Works with handles from any haddo_books_by_* function -- kind-agnostic.
     Raises #VALUE! if the handle is stale, the row is out of range, or the
     field name is unknown.
     """
-    data = _CATALOG.get(handle)           # no expected_kind — all book handles share this accessor
+    data = _CATALOG.get(handle)           # no expected_kind -- all book handles share this accessor
     row_dict = data[row - 1]
     if field not in row_dict:
         available = ", ".join(sorted(row_dict.keys()))
@@ -363,14 +363,14 @@ def haddo_len(handle: str) -> int:
     Called from a VBA macro via Application.Run:
         n = Application.Run("haddo_len", handle)
 
-    Works with handles from any haddo_books_by_* function — kind-agnostic.
+    Works with handles from any haddo_books_by_* function -- kind-agnostic.
     Useful for driving a For loop over the result:
         Dim i As Long
         For i = 1 To Application.Run("haddo_len", handle)
             ...
         Next i
     """
-    data = _CATALOG.get(handle)           # no expected_kind — kind-agnostic
+    data = _CATALOG.get(handle)           # no expected_kind -- kind-agnostic
     return len(data)
 
 
@@ -381,12 +381,12 @@ def haddo_release(handle: str) -> str:
     Called from a VBA macro via Application.Run:
         Application.Run "haddo_release", handle
 
-    Always call this when finished — ideally in an On Error GoTo Cleanup block
+    Always call this when finished -- ideally in an On Error GoTo Cleanup block
     so the entry is freed even if the macro fails mid-way.
 
-    Works with handles from any haddo_books_by_* function — kind-agnostic.
+    Works with handles from any haddo_books_by_* function -- kind-agnostic.
     Returns "released" if the handle existed, "not found" if it was already
-    gone (e.g. expired by a sweep) — both are safe outcomes for VBA.
+    gone (e.g. expired by a sweep) -- both are safe outcomes for VBA.
     """
     released = _CATALOG.release(handle)
     return "released" if released else "not found"

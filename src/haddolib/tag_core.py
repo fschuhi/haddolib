@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-tag_core.py — The pure tag-management write layer for haddolib.
+tag_core.py -- The pure tag-management write layer for haddolib.
 
 All tag write operations live here. Reads (for display) stay in query_core.py.
-No PyXLL, no Excel — testable on macOS via the empty_db fixture.
+No PyXLL, no Excel -- testable on macOS via the empty_db fixture.
 
 Public entry points:
 
-  set_tags(conn, book_id, tags_csv) — replace all tags for a book.
+  set_tags(conn, book_id, tags_csv) -- replace all tags for a book.
 
 Tag contract (mirrors the import path in roster_import.py):
-  • Tag matching is case-insensitive (COLLATE NOCASE on the unique index).
-  • The first spelling seen for a tag name is the one stored in the tag table.
-  • Unknown tags are auto-added to the tag table; this module never removes
-    tag rows — orphan pruning is a separate, explicit operation.
-  • set_tags never commits — the caller owns the transaction.
+  - Tag matching is case-insensitive (COLLATE NOCASE on the unique index).
+  - The first spelling seen for a tag name is the one stored in the tag table.
+  - Unknown tags are auto-added to the tag table; this module never removes
+    tag rows -- orphan pruning is a separate, explicit operation.
+  - set_tags never commits -- the caller owns the transaction.
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ def _resolve_or_create_tags(conn: sqlite3.Connection, names: list[str]) -> list[
     """Resolve tag names to tag_ids, auto-inserting any that don't exist yet.
 
     Matching is case-insensitive (COLLATE NOCASE), so 'Klassiker' and
-    'klassiker' resolve to the same row — the first spelling seen wins.
+    'klassiker' resolve to the same row -- the first spelling seen wins.
     Deduplicates by resolved tag_id, so passing the same name twice (in any
     casing) yields one id rather than a primary-key clash downstream.
     """
@@ -69,7 +69,7 @@ def set_tags(
     from a book are NOT deleted from the tag table. Orphan pruning is a separate
     explicit operation.
 
-    Does NOT commit — the caller owns the transaction boundary.
+    Does NOT commit -- the caller owns the transaction boundary.
 
     Raises ValueError if book_id is not a positive integer.
     """

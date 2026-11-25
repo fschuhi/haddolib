@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-backup_db.py — Safely backs up the live SQLite database and its directory.
+backup_db.py -- Safely backs up the live SQLite database and its directory.
 
 Uses sqlite3's native backup API to ensure consistency even if the DB is active.
 Creates a timestamped subfolder in each provided destination root.

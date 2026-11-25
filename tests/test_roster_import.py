@@ -1,5 +1,5 @@
 """
-tests/test_roster_import.py — The insert path (insert_book_row), on empty_db.
+tests/test_roster_import.py -- The insert path (insert_book_row), on empty_db.
 
 Synthetic rows built through map_row (so the mapping and the insert are exercised
 together, the way the driver will use them). These tests ARE the spec for what
@@ -109,7 +109,7 @@ def test_tags_are_case_insensitive_within_and_across_rows(empty_db) -> None:
         {"isbn13": "9782222222226", "revision_source": "isbndb", "title": "B",
          "tags": "FICTION"}), TS)
     total_tags = empty_db.execute("SELECT COUNT(*) n FROM tag").fetchone()["n"]
-    assert total_tags == 2                              # Fiction, SciFi — FICTION reused
+    assert total_tags == 2                              # Fiction, SciFi -- FICTION reused
 
     # the stored spelling is the first one seen
     fiction = _one(empty_db, "SELECT name FROM tag WHERE name = 'fiction' COLLATE NOCASE")
@@ -133,7 +133,7 @@ def test_cover_status_respects_supplied_value(empty_db) -> None:
 
 
 # ---------------------------------------------------------------------------
-# The batch driver (import_roster) — dedup, decline reasons, error isolation.
+# The batch driver (import_roster) -- dedup, decline reasons, error isolation.
 # ---------------------------------------------------------------------------
 
 from haddolib.roster_import import ImportSummary, import_roster   # noqa: E402
@@ -222,7 +222,7 @@ def test_bad_row_is_isolated_not_fatal(empty_db) -> None:
     # middle row errors AT INSERT for a non-ISBN reason: it carries real
     # bibliographic data (a title) but no revision_source, so insert_book_row
     # raises ValueError. The driver rolls it back and records it as an error;
-    # neighbours survive. (A malformed isbn13 no longer reaches the insert — it is
+    # neighbours survive. (A malformed isbn13 no longer reaches the insert -- it is
     # now an invalid_isbn13 decline; see test_invalid_isbn13_checksum_declined.)
     rows = [
         _row(isbn13="9783423058087", title="good 1", source="isbndb"),
@@ -239,7 +239,7 @@ def test_bad_row_is_isolated_not_fatal(empty_db) -> None:
 def test_invalid_isbn13_checksum_declined(empty_db) -> None:
     # 13 digits, 978-prefixed, but a WRONG check digit (the valid form ends 087).
     # The schema's length-only CHECK would let this through; the driver's
-    # is_valid_isbn13 guard catches it FIRST and declines it as invalid_isbn13 —
+    # is_valid_isbn13 guard catches it FIRST and declines it as invalid_isbn13 --
     # before dedup, and without ever reaching the insert.
     rows = [_row(isbn13="9783423058088", title="bad checksum", source="isbndb")]
     s = import_roster(empty_db, HEADERS, rows, TS)
@@ -251,11 +251,11 @@ def test_invalid_isbn13_checksum_declined(empty_db) -> None:
 
 def test_non_numeric_string_in_numeric_column_declined(empty_db) -> None:
     # A numeric column (height_cm) holding a STRING is declined as non_numeric_value
-    # — even a string that WOULD parse ("21.59"). A genuine Excel number reaches us
-    # as a float and inserts; a blank cell is fine (it becomes NULL, never a reject —
+    # -- even a string that WOULD parse ("21.59"). A genuine Excel number reaches us
+    # as a float and inserts; a blank cell is fine (it becomes NULL, never a reject --
     # empty dimension cells are the common case in real data). The check runs on the
-    # RAW row before map_row, so the German-comma "21,59" — which as_real would crash
-    # on, OUTSIDE the per-row try/except — is turned into a clean, fixable reject
+    # RAW row before map_row, so the German-comma "21,59" -- which as_real would crash
+    # on, OUTSIDE the per-row try/except -- is turned into a clean, fixable reject
     # instead of aborting the whole run.
     headers = ["isbn13", "title", "revision_source", "height_cm"]
     rows = [
@@ -297,7 +297,7 @@ def test_summary_line_and_derived_fields() -> None:
 
 
 # ---------------------------------------------------------------------------
-# rejected_rows — the durable capture the bridge turns into the rejected file.
+# rejected_rows -- the durable capture the bridge turns into the rejected file.
 # ---------------------------------------------------------------------------
 
 def test_rejected_rows_capture_reason_detail_and_verbatim_values(empty_db) -> None:
@@ -317,7 +317,7 @@ def test_rejected_rows_capture_reason_detail_and_verbatim_values(empty_db) -> No
     s = import_roster(empty_db, HEADERS, rows, TS)
 
     # the four clean declines carry their stable token; their detail is "" (these
-    # are identity checks — the code alone says enough).
+    # are identity checks -- the code alone says enough).
     by_reason = {reason: (detail, values) for reason, detail, values in s.rejected_rows}
     for token in ("invalid_isbn13", "duplicate_isbn13", "duplicate_photo", "no_key"):
         assert token in by_reason
@@ -327,7 +327,7 @@ def test_rejected_rows_capture_reason_detail_and_verbatim_values(empty_db) -> No
     assert by_reason["invalid_isbn13"][1] == tuple(invalid_row)
 
     # the errored row's reason is the exception MESSAGE (actionable at the bench),
-    # not a bare token — its detail is blank, and it is NOT one of the decline tokens.
+    # not a bare token -- its detail is blank, and it is NOT one of the decline tokens.
     decline_tokens = {"invalid_isbn13", "duplicate_isbn13", "duplicate_photo", "no_key"}
     error_entries = [(reason, detail, vals) for reason, detail, vals in s.rejected_rows
                      if reason not in decline_tokens]
@@ -356,7 +356,7 @@ def test_rejected_rows_invariant_equals_declined_plus_errors(empty_db) -> None:
 
 
 # ---------------------------------------------------------------------------
-# status_blank — the LATE required-field check. book_status is required WHEN
+# status_blank -- the LATE required-field check. book_status is required WHEN
 # the column is present (semantics A); a missing column is a separate, header-
 # level concern (see TODO.md). Placed after the identity decision, so identity
 # reasons win and a blanked row never claims a dedup key.
@@ -391,7 +391,7 @@ def test_status_blank_loses_to_identity_reason(empty_db) -> None:
     # The LATE slot is the point: a row that is blank-on-status AND fails an
     # identity check reports the IDENTITY reason, because that decision runs
     # first. Three such rows, each also status-blank, each reporting its own
-    # token — never status_blank.
+    # token -- never status_blank.
     headers = ["isbn13", "title", "revision_source", "cover_ref", "cover_source",
                "book_status"]
     rows = [
@@ -413,7 +413,7 @@ def test_status_blank_loses_to_identity_reason(empty_db) -> None:
 
 
 def test_status_blank_ignored_when_column_absent(empty_db) -> None:
-    # Semantics A: when the sheet omits book_status entirely, the gate is silent —
+    # Semantics A: when the sheet omits book_status entirely, the gate is silent --
     # every row passes it. (A missing column is the header-level concern parked in
     # TODO.md.) The module HEADERS carry no book_status, so a clean batch inserts
     # with zero status_blank.
@@ -430,7 +430,7 @@ def test_status_blank_ignored_when_column_absent(empty_db) -> None:
 def test_status_blank_row_does_not_claim_the_dedup_key(empty_db) -> None:
     # Late rejection happens BEFORE the key joins the in-batch dedup set, so a
     # blanked row must not shadow a LATER valid row with the same isbn13: the
-    # second row still inserts — it is not seen as a duplicate of the rejected one.
+    # second row still inserts -- it is not seen as a duplicate of the rejected one.
     headers = ["isbn13", "title", "revision_source", "book_status"]
     rows = [
         ["9783423058087", "first, blank status", "isbndb", ""],      # rejected: status_blank
@@ -444,7 +444,7 @@ def test_status_blank_row_does_not_claim_the_dedup_key(empty_db) -> None:
 
 
 # ---------------------------------------------------------------------------
-# incomplete_location — the second LATE check. A PARTIAL location hierarchy
+# incomplete_location -- the second LATE check. A PARTIAL location hierarchy
 # (child without parent) rejects; a full or a fully-absent location passes.
 # Reads mapped values, so a blank parent and an absent parent column are alike.
 # ---------------------------------------------------------------------------
@@ -473,7 +473,7 @@ def test_incomplete_location_declined(empty_db) -> None:
 
 def test_blank_or_absent_location_passes(empty_db) -> None:
     # Two ways to have "no location": every location cell blank, or the columns
-    # absent entirely. Both map to None — not a partial hierarchy — so the
+    # absent entirely. Both map to None -- not a partial hierarchy -- so the
     # "elsewhere in the house" book inserts untouched in either case.
     headers_blank = ["isbn13", "title", "revision_source",
                      "room", "space_label", "bin_label"]
@@ -489,7 +489,7 @@ def test_blank_or_absent_location_passes(empty_db) -> None:
 
 def test_incomplete_location_loses_to_identity_reason(empty_db) -> None:
     # Late slot again: a row that is partial-on-location AND a duplicate reports
-    # the IDENTITY reason — the location check is never reached.
+    # the IDENTITY reason -- the location check is never reached.
     headers = ["isbn13", "title", "revision_source", "room", "space_label", "bin_label"]
     rows = [
         ["9783423058087", "seed", "isbndb", "Magazin", "rack 03", "07"],  # full -> inserts, seeds key

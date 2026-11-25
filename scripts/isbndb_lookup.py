@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-isbndb_lookup.py — Bulk ISBN lookup via ISBNdb API v2.
+isbndb_lookup.py -- Bulk ISBN lookup via ISBNdb API v2.
 
 Reads ISBNs (one per line) from a file (-i) or stdin.
 Writes a semicolon-delimited CSV (UTF-8 BOM, German Excel compatible)
@@ -84,7 +84,7 @@ def lookup_batch(isbns: list[str], api_key: str) -> dict[str, dict]:
     try:
         response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
         if response.status_code == 429:
-            print("[WARN] Rate limit hit — waiting 5s before retry", file=sys.stderr)
+            print("[WARN] Rate limit hit -- waiting 5s before retry", file=sys.stderr)
             time.sleep(5)
             response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
         response.raise_for_status()
@@ -119,9 +119,9 @@ def read_isbns(source) -> tuple[list[str], list[str], list[tuple[int, str]]]:
     """
     Read ISBNs from a file-like object.
     Returns:
-        isbn13s  — valid ISBN-13s, ready for bulk POST
-        isbn10s  — valid ISBN-10s, skipped by this script (use isbndb_search.py)
-        skipped  — (lineno, value) pairs that don't look like ISBNs at all
+        isbn13s  -- valid ISBN-13s, ready for bulk POST
+        isbn10s  -- valid ISBN-10s, skipped by this script (use isbndb_search.py)
+        skipped  -- (lineno, value) pairs that don't look like ISBNs at all
     """
     isbn13s = []
     isbn10s = []
@@ -174,7 +174,7 @@ def main() -> None:
 
     if isbn10s:
         print(
-            f"[INFO] {len(isbn10s)} ISBN-10(s) discarded — not supported by bulk POST endpoint.",
+            f"[INFO] {len(isbn10s)} ISBN-10(s) discarded -- not supported by bulk POST endpoint.",
             file=sys.stderr,
         )
         print(
@@ -195,13 +195,13 @@ def main() -> None:
     for batch_idx in range(num_batches):
         batch = isbn13s[batch_idx * BATCH_SIZE : (batch_idx + 1) * BATCH_SIZE]
         batch_num = batch_idx + 1
-        print(f"[INFO] Batch {batch_num}/{num_batches} — {len(batch)} ISBN(s) ...", file=sys.stderr)
+        print(f"[INFO] Batch {batch_num}/{num_batches} -- {len(batch)} ISBN(s) ...", file=sys.stderr)
 
         results = lookup_batch(batch, api_key)
         rows.extend(results[isbn] for isbn in batch)
 
         found_in_batch = sum(1 for isbn in batch if results[isbn]["found"])
-        print(f"       → {found_in_batch}/{len(batch)} found", file=sys.stderr)
+        print(f"       -> {found_in_batch}/{len(batch)} found", file=sys.stderr)
 
         if batch_num < num_batches:
             time.sleep(BATCH_DELAY_S)

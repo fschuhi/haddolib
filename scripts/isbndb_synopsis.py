@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-isbndb_synopsis.py — Fetch synopses for pdf-annotations PDFs via ISBNdb.
+isbndb_synopsis.py -- Fetch synopses for pdf-annotations PDFs via ISBNdb.
 
 Reads the query CSV produced by pdf_lst_to_queries.py (pdf_id;query;year).
 For each row, fetches all editions via ISBNdb's free-text search, picks the
@@ -183,7 +183,7 @@ def main() -> None:
 
         status = "found" if csv_row["found"] else "not found"
         year_note = f", year matched {csv_row['year_matched']}" if csv_row["year_matched"] else ""
-        print(f"       → {status}{year_note}", file=sys.stderr)
+        print(f"       -> {status}{year_note}", file=sys.stderr)
 
         if idx < len(work_items):
             time.sleep(REQUEST_DELAY_S)

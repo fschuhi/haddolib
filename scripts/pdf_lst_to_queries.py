@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-pdf_lst_to_queries.py — Convert a *.lst of PDF filenames into an ISBNdb query CSV.
+pdf_lst_to_queries.py -- Convert a *.lst of PDF filenames into an ISBNdb query CSV.
 
 Reads PDF filenames (one per line) from a file (-i), each expected to follow
 the pdf-annotations naming convention:

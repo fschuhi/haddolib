@@ -1,9 +1,9 @@
 """
-cover_download.py — Download book cover images from a list of URLs.
+cover_download.py -- Download book cover images from a list of URLs.
 
 Reads URLs (one per line) from a file (-i) or stdin.
 Downloads each image to the output directory (-o), using the filename
-from the URL (e.g. https://.../26817133484344.jpg → 26817133484344.jpg).
+from the URL (e.g. https://.../26817133484344.jpg -> 26817133484344.jpg).
 
 Files already present in the output directory are skipped.
 Progress and summary are written to stderr.
@@ -40,7 +40,7 @@ def read_urls(source) -> list[str]:
 def filename_from_url(url: str) -> str:
     """
     Extract the filename from the last path segment of a URL.
-    e.g. 'https://images.isbndb.com/covers/26817133484344.jpg' → '26817133484344.jpg'
+    e.g. 'https://images.isbndb.com/covers/26817133484344.jpg' -> '26817133484344.jpg'
     """
     return Path(urlparse(url).path).name
 
@@ -52,9 +52,9 @@ def download_one(url: str, output_dir: Path) -> str:
     Download a single URL to output_dir.
 
     Returns:
-        'downloaded' — file was fetched and written successfully
-        'skipped'    — file already exists in output_dir
-        'error'      — fetch or write failed (warning already printed to stderr)
+        'downloaded' -- file was fetched and written successfully
+        'skipped'    -- file already exists in output_dir
+        'error'      -- fetch or write failed (warning already printed to stderr)
     """
     filename = filename_from_url(url)
     if not filename:

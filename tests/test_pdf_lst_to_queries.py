@@ -1,5 +1,5 @@
 """
-tests/test_pdf_lst_to_queries.py — Tests for pdf_lst_to_queries.py's filename
+tests/test_pdf_lst_to_queries.py -- Tests for pdf_lst_to_queries.py's filename
 parser (parse_filename) and *.lst reader (read_filenames).
 
 Real-world cases below are drawn from an actual pdfs.lst run (5/5 parsed,

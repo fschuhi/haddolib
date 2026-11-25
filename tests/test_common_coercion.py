@@ -1,5 +1,5 @@
 """
-tests/test_common_coercion.py — The value-coercion helpers in common.py.
+tests/test_common_coercion.py -- The value-coercion helpers in common.py.
 
 These cover the contract the roster mapping leans on but doesn't exercise
 directly: the int(float(...)) string path, and the "raise loudly on a

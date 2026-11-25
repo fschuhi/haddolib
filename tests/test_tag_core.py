@@ -1,18 +1,18 @@
 """
-tests/test_tag_core.py — Tests for the pure tag write layer (tag_core.py).
+tests/test_tag_core.py -- Tests for the pure tag write layer (tag_core.py).
 
 These tests ARE the spec for tag_core.set_tags. They use empty_db (the
 schema on an in-memory connection). Each test sets up its own
-minimal book fixture — no shared seed — so the cases stay independent and
+minimal book fixture -- no shared seed -- so the cases stay independent and
 easy to read.
 
 Core contract under test:
-  • Tags are replaced wholesale (delete-all-then-reinsert).
-  • Tag matching is case-insensitive; unknown tags are auto-added to tag.
-  • The tag table is append-only: removed tags stay in tag, only book_tag
+  - Tags are replaced wholesale (delete-all-then-reinsert).
+  - Tag matching is case-insensitive; unknown tags are auto-added to tag.
+  - The tag table is append-only: removed tags stay in tag, only book_tag
     rows are deleted.
-  • An empty/blank tags_csv clears all tags without error.
-  • Does not commit — the caller owns the transaction.
+  - An empty/blank tags_csv clears all tags without error.
+  - Does not commit -- the caller owns the transaction.
 """
 
 import pytest
@@ -122,7 +122,7 @@ def test_set_tags_case_insensitive_reuses_existing_tag_row(empty_db) -> None:
     empty_db.commit()
 
     book_id = _make_book(empty_db)
-    # Pass the same tag in all-lowercase — must reuse the existing row.
+    # Pass the same tag in all-lowercase -- must reuse the existing row.
     set_tags(empty_db, book_id, "klassiker")
     empty_db.commit()
 
@@ -140,7 +140,7 @@ def test_set_tags_first_spelling_wins_for_new_tag(empty_db) -> None:
 
     assert _all_tag_names(empty_db) == ["scifi"]
 
-    # A second book uses "SciFi" — must reuse "scifi", not create a new row.
+    # A second book uses "SciFi" -- must reuse "scifi", not create a new row.
     book_id2 = _make_book(empty_db, isbn13="9781234567897")
     set_tags(empty_db, book_id2, "SciFi")
     empty_db.commit()
@@ -157,7 +157,7 @@ def test_set_tags_does_not_delete_orphaned_tag_rows(empty_db) -> None:
     set_tags(empty_db, book_id, "Thriller, Schweden")
     empty_db.commit()
 
-    # Replace with a different tag — Thriller and Schweden become orphans.
+    # Replace with a different tag -- Thriller and Schweden become orphans.
     set_tags(empty_db, book_id, "Klassiker")
     empty_db.commit()
 

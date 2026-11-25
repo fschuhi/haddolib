@@ -1,5 +1,5 @@
 """
-tests/test_roster.py — The roster mapping layer (pure; no database).
+tests/test_roster.py -- The roster mapping layer (pure; no database).
 
 These tests ARE the spec for map_row / split_tags / unknown_headers. They use
 synthetic rows only; no fixture, no DB. Behaviour that touches the database

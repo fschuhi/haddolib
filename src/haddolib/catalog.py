@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-catalog.py — the pure handle catalog for haddolib's read-path crossings.
+catalog.py -- the pure handle catalog for haddolib's read-path crossings.
 
 A small, stateful store mapping opaque handle strings to Python objects, with
 TTL-based eviction. It is the haddolib-owned alternative to PyXLL's transient
 object cache (whose TTL semantics proved unsuitable for stateful VBA loops):
-plain-string handles are first-class Excel/VBA values — storable in variables,
-cells, or dictionaries — with no PyXLL-specific lifetime rules.
+plain-string handles are first-class Excel/VBA values -- storable in variables,
+cells, or dictionaries -- with no PyXLL-specific lifetime rules.
 
 This module is PURE: stdlib only, no PyXLL, no Excel, no database. It is fully
 unit-testable on macOS. The thin @xl_func wrappers in pyxll_bridge.py hold one
 module-level HandleCatalog instance and do the Excel/VBA marshalling around it.
 
 Handle format:  haddo:{session_id}:{kind}:{16-byte hex token}
-  The session_id (generated once per catalog instance — i.e. once per Python
+  The session_id (generated once per catalog instance -- i.e. once per Python
   session in production) makes stale handles from a previous PyXLL reload carry
   a different prefix, so they are immediately recognisable.
 
@@ -23,7 +23,7 @@ Concurrency:
 
 Testability (the reason this is a class, not module globals):
   - now_fn is injectable, so sweep() and last-accessed bookkeeping are tested
-    deterministically by advancing a fake clock — no sleep().
+    deterministically by advancing a fake clock -- no sleep().
   - Each HandleCatalog instance owns its own state, so tests never bleed into
     one another through a module global.
 """
@@ -39,7 +39,7 @@ from typing import Any, Callable
 
 @dataclass
 class _Entry:
-    """One stored catalog entry. Internal — callers read data via get()/snapshot()."""
+    """One stored catalog entry. Internal -- callers read data via get()/snapshot()."""
 
     kind: str
     created_at: datetime
@@ -122,7 +122,7 @@ class HandleCatalog:
     def replace(self, handle: str, data: Any) -> None:
         """Replace the data stored under an existing handle in place.
 
-        Updates last_accessed_at to now. The handle string is unchanged —
+        Updates last_accessed_at to now. The handle string is unchanged --
         callers (VBA) hold the same string and see fresh data on the next
         get() call.
 
@@ -138,7 +138,7 @@ class HandleCatalog:
     def sweep(self, max_age_seconds: int | None = None) -> int:
         """Evict entries not accessed within max_age_seconds. Returns the count.
 
-        When max_age_seconds is None, default_ttl_seconds is used — so the
+        When max_age_seconds is None, default_ttl_seconds is used -- so the
         wrapper can simply call sweep() and let the catalog own the default.
         """
         if max_age_seconds is None:
@@ -160,7 +160,7 @@ class HandleCatalog:
 
         Each element is a dict with keys: handle, kind, created_at,
         last_accessed_at, size. created_at / last_accessed_at are raw datetimes
-        and size is len(data) (or None when data has no length) — the PyXLL
+        and size is len(data) (or None when data has no length) -- the PyXLL
         wrapper formats these for the worksheet (isoformat, blank for None).
         Built under the lock, so it is a coherent snapshot.
         """

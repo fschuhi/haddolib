@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-isbn_lookup.py — Bulk ISBN lookup via Open Library Books API.
+isbn_lookup.py -- Bulk ISBN lookup via Open Library Books API.
 
 Reads ISBNs (one per line) from a file (-i) or stdin.
 Writes a semicolon-delimited CSV (UTF-8 BOM, German Excel compatible)
@@ -51,7 +51,7 @@ def _is_plausible_isbn(raw: str) -> bool:
     """
     Quick sanity check: accept ISBN-13 (starts with 978/979, 13 digits)
     or ISBN-10 (10 chars, first 9 digits, last digit or X).
-    Does NOT compute the check digit — that's already been done in Excel.
+    Does NOT compute the check digit -- that's already been done in Excel.
     """
     s = raw.replace("-", "").replace(" ", "").upper()
     if len(s) == 13:
@@ -209,7 +209,7 @@ def main() -> None:
         batch = isbns[batch_idx * BATCH_SIZE : (batch_idx + 1) * BATCH_SIZE]
         batch_num = batch_idx + 1
         print(
-            f"[INFO] Batch {batch_num}/{num_batches} — {len(batch)} ISBN(s) ...",
+            f"[INFO] Batch {batch_num}/{num_batches} -- {len(batch)} ISBN(s) ...",
             file=sys.stderr,
         )
         results = lookup_batch(batch)
@@ -217,7 +217,7 @@ def main() -> None:
 
         found_in_batch = sum(1 for isbn in batch if results[isbn]["found"])
         print(
-            f"       → {found_in_batch}/{len(batch)} found",
+            f"       -> {found_in_batch}/{len(batch)} found",
             file=sys.stderr,
         )
 

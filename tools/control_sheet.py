@@ -43,7 +43,7 @@ def create_simple_sheet():
 
     # Save the final sheet
     plt.savefig("studio_control_sheet.png", dpi=150, bbox_inches='tight')
-    print("✅ Done! Open 'studio_control_sheet.png' in this folder.")
+    print("[INFO] Done! Open 'studio_control_sheet.png' in this folder.")
 
 if __name__ == "__main__":
     create_simple_sheet()

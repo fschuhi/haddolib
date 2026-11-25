@@ -1,15 +1,15 @@
 """
-tests/test_snapshot_core.py — Tests for the pure snapshot layer (snapshot_core.py).
+tests/test_snapshot_core.py -- Tests for the pure snapshot layer (snapshot_core.py).
 
 These tests ARE the spec for write_snapshot(). They use empty_db (the schema on an
 in-memory connection) and the same minimal seed used across the
 query_core tests.
 
 Seed layout (4 books):
-  • Book A — Magazin / rack 01 / box 01 / pos 1.0, isbndb, tags: Schweden, Thriller
-  • Book B — Magazin / rack 01 / box 01 / pos 2.0, isbndb, no tags
-  • photo  — Magazin / rack 01 / box 02 / pos 1.0, own_photo, no revision, tags: Krimi
-  • Book D — Wohnzimmer / no space / no bin,        manual,   no tags, no cover
+  - Book A -- Magazin / rack 01 / box 01 / pos 1.0, isbndb, tags: Schweden, Thriller
+  - Book B -- Magazin / rack 01 / box 01 / pos 2.0, isbndb, no tags
+  - photo  -- Magazin / rack 01 / box 02 / pos 1.0, own_photo, no revision, tags: Krimi
+  - Book D -- Wohnzimmer / no space / no bin,        manual,   no tags, no cover
 """
 
 import io
@@ -26,7 +26,7 @@ TS = "2026-06-20T12:00:00"
 
 
 # ---------------------------------------------------------------------------
-# Seed helper (minimal copy — avoids cross-test-file imports)
+# Seed helper (minimal copy -- avoids cross-test-file imports)
 # ---------------------------------------------------------------------------
 
 def _seed(conn) -> None:
@@ -123,13 +123,13 @@ def test_write_snapshot_header_matches_snapshot_fields(seeded_db) -> None:
 
 
 def test_snapshot_fields_covers_field_map_and_tags() -> None:
-    # SNAPSHOT_FIELDS must contain every FIELD_MAP key and TAGS_HEADER — nothing
+    # SNAPSHOT_FIELDS must contain every FIELD_MAP key and TAGS_HEADER -- nothing
     # from the import vocabulary should be silently missing from the snapshot.
     assert set(SNAPSHOT_FIELDS) == set(FIELD_MAP) | {TAGS_HEADER}
 
 
 def test_write_snapshot_row_count(seeded_db) -> None:
-    # 4 books in the seed → 4 data rows (plus 1 header = 5 total rows in xlsx).
+    # 4 books in the seed -> 4 data rows (plus 1 header = 5 total rows in xlsx).
     ws = _snapshot_workbook(seeded_db).active
     assert ws.max_row == 5
 
@@ -167,7 +167,7 @@ def test_write_snapshot_values_round_trip(seeded_db) -> None:
 
 
 def test_write_snapshot_revisionless_book_included(seeded_db) -> None:
-    # The photo book has no revision — it must appear with NULL bib fields,
+    # The photo book has no revision -- it must appear with NULL bib fields,
     # not be absent from the snapshot.
     ws = _snapshot_workbook(seeded_db).active
     header = [cell.value for cell in ws[1]]
@@ -196,7 +196,7 @@ def test_write_snapshot_empty_db_writes_header_only(empty_db) -> None:
 
 
 def test_write_snapshot_isbn13_is_text_cell(seeded_db) -> None:
-    # ISBNs must be written as text cells — the whole reason for xlsx over CSV.
+    # ISBNs must be written as text cells -- the whole reason for xlsx over CSV.
     # openpyxl data_type "s" means string; "n" would mean number (corrupted).
     buf = io.BytesIO()
     write_snapshot(seeded_db, buf, NOW)

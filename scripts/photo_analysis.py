@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-photo_analysis.py — Analyse book cover photos using a local VLM via Ollama.
+photo_analysis.py -- Analyse book cover photos using a local VLM via Ollama.
 
 Reads a list of image file paths (one per line) from -i.
 Sends each image to a local Ollama VLM model and extracts title, author,
@@ -45,7 +45,7 @@ CSV_SEP = ";"
 
 PROMPT = """\
 You are a book cataloguing assistant. Examine the book cover in the image and \
-extract the following fields. Respond ONLY with a valid JSON object — no explanation, \
+extract the following fields. Respond ONLY with a valid JSON object -- no explanation, \
 no markdown, no code fences.
 
 Fields:
@@ -56,16 +56,16 @@ Fields:
   "title"      : main title exactly as printed
   "subtitle"   : subtitle exactly as printed, or "" if not present
   "publisher"  : publisher name exactly as printed, or "" if not visible
-  "confidence" : float 0.0–1.0, your estimate of how complete and accurate your
+  "confidence" : float 0.0-1.0, your estimate of how complete and accurate your
                  extraction is (1.0 = all fields clearly visible and readable,
                  0.0 = you cannot determine anything useful)
 
 Important rules:
 - If text appears in all capitals, normalise it to title case.
-  Example: "DIE BRIEFE VOM WEIHNACHTSMANN" → "Die Briefe vom Weihnachtsmann"
-- Apply consistent capitalisation — do not mix cases within a single word.
-  Example: "DIogenes" → "Diogenes"
-- Any field may be printed in all capitals on the cover — apply normalisation to all fields.
+  Example: "DIE BRIEFE VOM WEIHNACHTSMANN" -> "Die Briefe vom Weihnachtsmann"
+- Apply consistent capitalisation -- do not mix cases within a single word.
+  Example: "DIogenes" -> "Diogenes"
+- Any field may be printed in all capitals on the cover -- apply normalisation to all fields.
 - Do not translate, correct spelling, or infer content that is not visible.\
 """
 
@@ -139,9 +139,9 @@ def compute_quality(parsed: dict | None) -> str:
     Compute a deterministic quality flag based on field completeness.
 
     Returns one of:
-      "complete" — author, title, and publisher are all non-empty
-      "partial"  — at least one of author or title is non-empty
-      "failed"   — parsing failed or both author and title are empty
+      "complete" -- author, title, and publisher are all non-empty
+      "partial"  -- at least one of author or title is non-empty
+      "failed"   -- parsing failed or both author and title are empty
     """
     if parsed is None:
         return "failed"
@@ -213,7 +213,7 @@ def _extract_rack(filename: str) -> str:
     parts = name.split("_")
     # Expected: ['rack', '03 2026-02-17 ...']
     if len(parts) >= 2 and parts[0].lower() == "rack":
-        return parts[1].split()[0]  # '03 2026-...' → '03'
+        return parts[1].split()[0]  # '03 2026-...' -> '03'
     return ""
 
 
@@ -346,7 +346,7 @@ def main() -> None:
         row = process_image(filepath, args.model)
         rows.append(row)
         status = f"quality={row['quality']}, confidence={row['confidence']}"
-        print(f"       → {status}", file=sys.stderr)
+        print(f"       -> {status}", file=sys.stderr)
 
     # --- Summary ---
     complete = sum(1 for r in rows if r["quality"] == "complete")

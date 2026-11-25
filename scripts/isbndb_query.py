@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-isbndb_query.py — Single-query debug tool for the ISBNdb API.
+isbndb_query.py -- Single-query debug tool for the ISBNdb API.
 
 For free-text queries, fires one request against GET /books/{query} and writes
 all returned results as semicolon-delimited CSV to stdout (UTF-8 BOM, German
-Excel compatible). No result selection or filtering — all records are written
+Excel compatible). No result selection or filtering -- all records are written
 for human inspection.
 
 For ISBN inputs (ISBN-13 or ISBN-10), routes to the POST /books endpoint
@@ -72,7 +72,7 @@ def lookup_one(isbn13: str, api_key: str, include_synopsis: bool) -> dict | None
     try:
         response = requests.post(API_URL, headers=headers, json={"isbns": [isbn13]}, timeout=30)
         if response.status_code == 429:
-            print("[WARN] Rate limit hit — waiting 5s before retry", file=sys.stderr)
+            print("[WARN] Rate limit hit -- waiting 5s before retry", file=sys.stderr)
             time.sleep(5)
             response = requests.post(API_URL, headers=headers, json={"isbns": [isbn13]}, timeout=30)
         response.raise_for_status()
@@ -135,12 +135,12 @@ def main() -> None:
     query = args.query.strip()
 
     if is_valid_isbn13(query):
-        print(f"[INFO] Detected ISBN-13 — using lookup endpoint", file=sys.stderr)
+        print(f"[INFO] Detected ISBN-13 -- using lookup endpoint", file=sys.stderr)
         record = lookup_one(query, api_key, include_synopsis=args.synopsis)
         rows = [record] if record else []
     elif is_valid_isbn10(query):
         isbn13 = isbn10_to_isbn13(query)
-        print(f"[INFO] Detected ISBN-10 — converted to {isbn13}, using lookup endpoint", file=sys.stderr)
+        print(f"[INFO] Detected ISBN-10 -- converted to {isbn13}, using lookup endpoint", file=sys.stderr)
         record = lookup_one(isbn13, api_key, include_synopsis=args.synopsis)
         rows = [record] if record else []
     else:

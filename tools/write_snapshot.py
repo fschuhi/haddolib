@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-write_snapshot.py — Write the full catalogue to a re-importable xlsx snapshot.
+write_snapshot.py -- Write the full catalogue to a re-importable xlsx snapshot.
 
 Writes data/import/YYYYMMDD_HHMMSS_snapshot.xlsx containing every row from
 book_current (plus tags), with headers matching FIELD_MAP exactly so the

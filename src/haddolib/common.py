@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-common.py — Shared utilities for haddolib cataloguing tools.
+common.py -- Shared utilities for haddolib cataloguing tools.
 
 Provides:
   - ISBN validation (ISBN-10 and ISBN-13, including checksum)
@@ -57,7 +57,7 @@ def is_valid_isbn10(raw: str) -> bool:
       2. Must be exactly 10 characters
       3. First 9 characters must be digits
       4. Last character is a digit or 'X' (representing 10)
-      5. Mod-11 checksum: sum of (position × digit) for positions 1–9;
+      5. Mod-11 checksum: sum of (position * digit) for positions 1-9;
          check digit = sum % 11  (X means 10)
     """
     s = raw.replace("-", "").replace(" ", "").upper()
@@ -107,8 +107,8 @@ def isbn10_to_isbn13(isbn10: str) -> str:
 # rather than drifting copies.
 #
 # The shared rule: a blank or missing value becomes NULL (None). This matters
-# because Excel UDFs / XLOOKUP always return something — an unmatched lookup
-# yields "" (empty string), never an IsEmpty-true cell — so "" must be read as
+# because Excel UDFs / XLOOKUP always return something -- an unmatched lookup
+# yields "" (empty string), never an IsEmpty-true cell -- so "" must be read as
 # "no value", i.e. NULL.
 
 def as_text(value) -> str | None:
@@ -122,7 +122,7 @@ def as_text(value) -> str | None:
 def as_int(value) -> int | None:
     """Coerce to int; blank/missing becomes NULL.
 
-    Native numbers pass straight through — Excel/PyXLL hands whole numbers as
+    Native numbers pass straight through -- Excel/PyXLL hands whole numbers as
     floats (e.g. 946.0), so int(946.0) is the real-world path. Strings are
     parsed via int(float(...)) so a stray '946.0' also works; a non-numeric
     string (e.g. a German-comma '1,2927') raises loudly rather than corrupting.
@@ -139,7 +139,7 @@ def as_real(value) -> float | None:
     """Coerce to float; blank/missing becomes NULL.
 
     Native numbers pass straight through (the PyXLL path); strings are parsed.
-    A German-comma string raises loudly — locale parsing is the CSV layer's job,
+    A German-comma string raises loudly -- locale parsing is the CSV layer's job,
     not ours, because PyXLL delivers the true float from the cell.
     """
     if value is None:
@@ -158,8 +158,8 @@ def write_csv(rows: list[dict], dest, fieldnames: list[str]) -> None:
     """
     Write rows as semicolon-delimited CSV with UTF-8 BOM (German Excel compatible).
 
-    dest       — a writable file-like object (opened in text mode)
-    fieldnames — column names; each row dict is expected to contain these keys
+    dest       -- a writable file-like object (opened in text mode)
+    fieldnames -- column names; each row dict is expected to contain these keys
     """
     dest.write("\ufeff")  # UTF-8 BOM
     writer = csv.DictWriter(
@@ -181,15 +181,15 @@ def write_xlsx(rows: list[dict], dest, fieldnames: list[str]) -> None:
     """
     Write rows to a single-sheet .xlsx, values kept in their NATIVE types.
 
-    dest       — a path (str / os.PathLike) OR a writable BINARY file-like object
-                 (not a text handle — openpyxl saves binary). The bridge passes a
-                 path; tests can pass a path or an io.BytesIO.
-    fieldnames — the header row and the column order. Each row dict is read by
-                 these keys; a missing key yields an empty cell.
+    dest       -- a path (str / os.PathLike) OR a writable BINARY file-like object
+                  (not a text handle -- openpyxl saves binary). The bridge passes a
+                  path; tests can pass a path or an io.BytesIO.
+    fieldnames -- the header row and the column order. Each row dict is read by
+                  these keys; a missing key yields an empty cell.
 
     Why xlsx and not CSV for the rejected-rows file: an .xlsx cell carries its
     type explicitly, so a string ISBN ("9783446195134", "0134685997") is written
-    as a TEXT cell and Excel will NOT re-guess it as a number on open — no lost
+    as a TEXT cell and Excel will NOT re-guess it as a number on open -- no lost
     leading zero, no 9,78E+12 scientific notation. CSV carries no type metadata,
     so Excel re-guesses on open and can corrupt exactly the value the
     fix-and-reimport loop depends on. Native passthrough also keeps genuine

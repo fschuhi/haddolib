@@ -1,5 +1,5 @@
 """
-tests/test_query_core.py — Tests for the pure read layer (query_core.py).
+tests/test_query_core.py -- Tests for the pure read layer (query_core.py).
 
 These tests ARE the spec for query_core. They use empty_db (the schema on an
 in-memory connection) and seed a small, known dataset that
@@ -8,9 +8,9 @@ the revision_source IS NOT NULL bib-check, the location hierarchy, and the
 cover fields.
 
 Seed layout (used across most tests):
-  • 2 books in "Magazin", rack 01, box 01  — both with bib data (isbndb)
-  • 1 book in "Magazin", rack 01, box 02  — photo-only (isbn13=NULL, own_photo)
-  • 1 book in "Wohnzimmer", no space/bin  — bib data (manual)
+  - 2 books in "Magazin", rack 01, box 01  -- both with bib data (isbndb)
+  - 1 book in "Magazin", rack 01, box 02  -- photo-only (isbn13=NULL, own_photo)
+  - 1 book in "Wohnzimmer", no space/bin  -- bib data (manual)
   Total: 4 books, 3 with bib, 1 photo-only.
 
 Extended seed for books_by_title / books_by_author / books_by_tags tests
@@ -184,8 +184,8 @@ def test_space_count_requires_room(seeded_db) -> None:
 # ---------------------------------------------------------------------------
 
 def test_location_combo_count(seeded_db) -> None:
-    # Magazin/rack 01/box 01 and Magazin/rack 01/box 02 → 2 combos.
-    # Wohnzimmer book has no space/bin → not counted.
+    # Magazin/rack 01/box 01 and Magazin/rack 01/box 02 -> 2 combos.
+    # Wohnzimmer book has no space/bin -> not counted.
     assert location_combo_count(seeded_db) == 2
 
 
@@ -397,7 +397,7 @@ def test_dispatcher_wrong_param_count_raises(seeded_db) -> None:
 # ---------------------------------------------------------------------------
 
 def test_distinct_statuses(seeded_db) -> None:
-    # Seed has: ready (x2), needs_cover, needs_search → sorted alphabetically
+    # Seed has: ready (x2), needs_cover, needs_search -> sorted alphabetically
     assert distinct_statuses(seeded_db) == "needs_cover, needs_search, ready"
 
 
@@ -445,7 +445,7 @@ def test_distinct_cover_statuses_empty_when_no_books(empty_db) -> None:
 
 
 # ---------------------------------------------------------------------------
-# dispatcher — vocabulary queries
+# dispatcher -- vocabulary queries
 # ---------------------------------------------------------------------------
 
 def test_dispatcher_distinct_statuses(seeded_db) -> None:
@@ -504,24 +504,24 @@ def test_books_by_bin_contains_expected_fields(seeded_db) -> None:
     assert "cover_ref" in row
     assert "cover_source" in row
     assert "cover_status" in row
-    # Tags — the aggregated extra field
+    # Tags -- the aggregated extra field
     assert "tags" in row
 
 
 def test_books_by_bin_tags_comma_separated(seeded_db) -> None:
     result = books_by_bin(seeded_db, "Magazin", "rack 01", "box 01")
-    # Book A has tags ["Thriller", "Schweden"] — alphabetical order: Schweden < Thriller
+    # Book A has tags ["Thriller", "Schweden"] -- alphabetical order: Schweden < Thriller
     assert result[0]["tags"] == "Schweden, Thriller"
 
 
 def test_books_by_bin_tags_none_when_no_tags(seeded_db) -> None:
-    # Book B has no tags — tags field should be None
+    # Book B has no tags -- tags field should be None
     result = books_by_bin(seeded_db, "Magazin", "rack 01", "box 01")
     assert result[1]["tags"] is None
 
 def test_books_by_bin_tags_alphabetical_order(empty_db) -> None:
     # Insert tags in reverse-alphabetical order (Zebra before Apfel) and
-    # verify they come back sorted — this is the spec for _TAGS_SUBQUERY.
+    # verify they come back sorted -- this is the spec for _TAGS_SUBQUERY.
     cur = empty_db.execute(
         "INSERT INTO book (isbn13, room, space_label, bin_label, position, "
         "book_status, preferred_cover_id, created_at) VALUES (?,?,?,?,?,?,NULL,?)",
@@ -593,13 +593,13 @@ def test_books_by_bin_no_cross_room_bleed(seeded_db) -> None:
 #   - tag AND/OR logic and the dedup-correctness requirement
 #
 # Full dataset (7 books):
-#   Book A   — "Book A",               isbndb,  rack 01 / box 01,  tags: Thriller, Schweden
-#   Book B   — "Book B",               isbndb,  rack 01 / box 01,  tags: (none)
-#   photo    — None (no revision),     own_photo, rack 01 / box 02, tags: Krimi
-#   Book D   — "Book D",               manual,  Wohnzimmer,        tags: (none)
-#   Welten   — "Der Krieg der Welten", isbndb,  rack 02 / box 01,  tags: Klassiker, SciFi
-#   Maschine — "Die Zeitmaschine",     isbndb,  rack 02 / box 01,  tags: Klassiker
-#   Frieden  — "Krieg und Frieden",    isbndb,  rack 02 / box 02,  tags: Klassiker
+#   Book A   -- "Book A",               isbndb,  rack 01 / box 01,  tags: Thriller, Schweden
+#   Book B   -- "Book B",               isbndb,  rack 01 / box 01,  tags: (none)
+#   photo    -- None (no revision),     own_photo, rack 01 / box 02, tags: Krimi
+#   Book D   -- "Book D",               manual,  Wohnzimmer,        tags: (none)
+#   Welten   -- "Der Krieg der Welten", isbndb,  rack 02 / box 01,  tags: Klassiker, SciFi
+#   Maschine -- "Die Zeitmaschine",     isbndb,  rack 02 / box 01,  tags: Klassiker
+#   Frieden  -- "Krieg und Frieden",    isbndb,  rack 02 / box 02,  tags: Klassiker
 # ===========================================================================
 
 @pytest.fixture
@@ -671,7 +671,7 @@ def test_books_by_title_case_insensitive(seeded_db_for_search) -> None:
 
 def test_books_by_title_ordered_by_shelf_position(seeded_db_for_search) -> None:
     # "Krieg" matches Welten (rack 02 / box 01 / pos 1.0) and
-    # Frieden (rack 02 / box 02 / pos 1.0) — box 01 comes before box 02.
+    # Frieden (rack 02 / box 02 / pos 1.0) -- box 01 comes before box 02.
     rows = books_by_title(seeded_db_for_search, "Krieg")
     assert rows[0]["title"] == "Der Krieg der Welten"
     assert rows[1]["title"] == "Krieg und Frieden"
@@ -784,7 +784,7 @@ def test_books_by_tags_match_any_single_tag(seeded_db_for_search) -> None:
 
 
 def test_books_by_tags_match_any_two_tags_union(seeded_db_for_search) -> None:
-    # SciFi OR Thriller → Krieg der Welten (SciFi) + Book A (Thriller)
+    # SciFi OR Thriller -> Krieg der Welten (SciFi) + Book A (Thriller)
     rows = books_by_tags(seeded_db_for_search, ["SciFi", "Thriller"], match_all=False)
     assert _titles(rows) == {"Der Krieg der Welten", "Book A"}
 
@@ -794,7 +794,7 @@ def test_books_by_tags_match_any_returns_all_tagged_books(seeded_db_for_search) 
     rows = books_by_tags(seeded_db_for_search, ["Klassiker", "SciFi", "Thriller", "Krimi"],
                          match_all=False)
     # Book A (Thriller), photo (Krimi), Welten (SciFi+Klassiker),
-    # Zeitmaschine (Klassiker), Frieden (Klassiker) — 5 books
+    # Zeitmaschine (Klassiker), Frieden (Klassiker) -- 5 books
     assert len(rows) == 5
 
 
@@ -805,7 +805,7 @@ def test_books_by_tags_match_all_single_tag_same_as_match_any(seeded_db_for_sear
 
 
 def test_books_by_tags_match_all_two_tags_intersection(seeded_db_for_search) -> None:
-    # Klassiker AND SciFi → only "Der Krieg der Welten" has both
+    # Klassiker AND SciFi -> only "Der Krieg der Welten" has both
     rows = books_by_tags(seeded_db_for_search, ["Klassiker", "SciFi"], match_all=True)
     assert _titles(rows) == {"Der Krieg der Welten"}
 
@@ -818,7 +818,7 @@ def test_books_by_tags_match_all_impossible_returns_empty(seeded_db_for_search) 
 
 def test_books_by_tags_result_ordered_by_shelf_position(seeded_db_for_search) -> None:
     # Klassiker books: Welten (rack 02/box 01/pos 1.0), Zeitmaschine (rack 02/box 01/pos 2.0),
-    # Frieden (rack 02/box 02/pos 1.0) — physical order, not alphabetical.
+    # Frieden (rack 02/box 02/pos 1.0) -- physical order, not alphabetical.
     rows = books_by_tags(seeded_db_for_search, ["Klassiker"], match_all=False)
     titles = [r["title"] for r in rows]
     assert titles.index("Der Krieg der Welten") < titles.index("Die Zeitmaschine")
@@ -842,7 +842,7 @@ def test_books_by_tags_result_has_full_fields(seeded_db_for_search) -> None:
 
 
 def test_books_by_tags_duplicate_input_does_not_corrupt_match_all(seeded_db_for_search) -> None:
-    # ["Klassiker", "Klassiker"] must behave as ["Klassiker"] — not require two
+    # ["Klassiker", "Klassiker"] must behave as ["Klassiker"] -- not require two
     # distinct matches (which would return nothing).
     rows_deduped = books_by_tags(seeded_db_for_search, ["Klassiker"],             match_all=True)
     rows_duped   = books_by_tags(seeded_db_for_search, ["Klassiker", "Klassiker"], match_all=True)
@@ -878,7 +878,7 @@ def test_books_by_tags_blank_entries_silently_dropped(seeded_db_for_search) -> N
 # ---------------------------------------------------------------------------
 
 def test_books_by_ids_returns_correct_books(seeded_db_for_search) -> None:
-    # Fetch a known subset by id — use books_by_bin to get their ids first.
+    # Fetch a known subset by id -- use books_by_bin to get their ids first.
     all_books_in_bin = books_by_bin(seeded_db_for_search, "Magazin", "rack 01", "box 01")
     ids = [b["book_id"] for b in all_books_in_bin]
     assert len(ids) >= 2
@@ -888,7 +888,7 @@ def test_books_by_ids_returns_correct_books(seeded_db_for_search) -> None:
 
 
 def test_books_by_ids_preserves_caller_order(seeded_db_for_search) -> None:
-    # Fetch books in reverse id order and assert the result matches that order —
+    # Fetch books in reverse id order and assert the result matches that order --
     # this is the key invariant: IN query order is not guaranteed by SQLite.
     all_books_in_bin = books_by_bin(seeded_db_for_search, "Magazin", "rack 01", "box 01")
     ids_reversed = list(reversed([b["book_id"] for b in all_books_in_bin]))
@@ -942,7 +942,7 @@ def test_tag_stats_returns_correct_counts(empty_db) -> None:
 
 def test_tag_stats_ordered_by_count_desc_then_name_asc(empty_db) -> None:
     # Insert three tags: Zebra(2), Apple(2), Mango(1).
-    # Expected order: Apple(2), Zebra(2), Mango(1) — tiebreaker is name asc.
+    # Expected order: Apple(2), Zebra(2), Mango(1) -- tiebreaker is name asc.
     cur = empty_db.execute(
         "INSERT INTO book (isbn13, room, space_label, bin_label, position, "
         "book_status, preferred_cover_id, created_at) VALUES (?,?,?,?,?,?,NULL,?)",
@@ -1037,14 +1037,14 @@ def test_all_books_shelf_order(seeded_db) -> None:
     titles = [r["title"] for r in result]
     assert titles[0] == "Book A"
     assert titles[1] == "Book B"
-    assert titles[2] is None      # photo book has no revision → no title
+    assert titles[2] is None      # photo book has no revision -> no title
     # Book D (Wohnzimmer, NULL space/bin) sorts last
     assert result[3]["isbn13"] == "9780306406157"
 
 
 def test_all_books_null_location_sorts_last(seeded_db) -> None:
     # Book D has room=Wohnzimmer but space_label=NULL, bin_label=NULL.
-    # NULLs sort after non-NULLs in SQLite ASC — it must be the last row.
+    # NULLs sort after non-NULLs in SQLite ASC -- it must be the last row.
     result = all_books(seeded_db)
     assert result[-1]["isbn13"] == "9780306406157"
 
@@ -1071,7 +1071,7 @@ def test_all_books_tags_none_for_untagged_book(seeded_db) -> None:
 
 
 def test_all_books_revisionless_book_included(seeded_db) -> None:
-    # The photo book has no revision — it must still appear with NULL bib fields.
+    # The photo book has no revision -- it must still appear with NULL bib fields.
     result = all_books(seeded_db)
     photo = next(r for r in result if r["isbn13"] is None)
     assert photo["title"] is None

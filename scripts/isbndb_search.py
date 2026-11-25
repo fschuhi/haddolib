@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-isbndb_search.py — Free-text and ISBN search via ISBNdb API v2.
+isbndb_search.py -- Free-text and ISBN search via ISBNdb API v2.
 
 Reads one query string per line from a file (-i).
 Writes a semicolon-delimited CSV (UTF-8 BOM, German Excel compatible) to -o.
@@ -67,7 +67,7 @@ def lookup_one(isbn13: str, api_key: str, include_synopsis: bool = False) -> dic
     try:
         response = requests.post(API_URL, headers=headers, json={"isbns": [isbn13]}, timeout=30)
         if response.status_code == 429:
-            print("[WARN] Rate limit hit — waiting 5s before retry", file=sys.stderr)
+            print("[WARN] Rate limit hit -- waiting 5s before retry", file=sys.stderr)
             time.sleep(5)
             response = requests.post(API_URL, headers=headers, json={"isbns": [isbn13]}, timeout=30)
         response.raise_for_status()
@@ -109,7 +109,7 @@ def read_queries(source) -> list[str]:
     """
     Read query strings from a file-like object.
     Skips blank lines and lines starting with #.
-    Returns query strings exactly as written — no parsing or reformatting.
+    Returns query strings exactly as written -- no parsing or reformatting.
     """
     queries = []
     for raw in source:
@@ -135,9 +135,9 @@ def resolve_query(query: str, api_key: str, include_synopsis: bool) -> dict:
     """
     Route a single query to the appropriate API call and return a CSV row dict.
 
-    ISBN-13  → lookup_one() via POST /books
-    ISBN-10  → convert to ISBN-13, then lookup_one() via POST /books
-    anything else → search_one() via GET /books/{query}
+    ISBN-13  -> lookup_one() via POST /books
+    ISBN-10  -> convert to ISBN-13, then lookup_one() via POST /books
+    anything else -> search_one() via GET /books/{query}
 
     In all cases the original query string is stamped into row["query"].
     """
@@ -150,7 +150,7 @@ def resolve_query(query: str, api_key: str, include_synopsis: bool) -> dict:
 
     if is_valid_isbn10(query):
         isbn13 = isbn10_to_isbn13(query)
-        print(f"       (ISBN-10 → ISBN-13: {isbn13})", file=sys.stderr)
+        print(f"       (ISBN-10 -> ISBN-13: {isbn13})", file=sys.stderr)
         record = lookup_one(isbn13, api_key, include_synopsis)
         if record is None:
             return _not_found(query)
@@ -196,7 +196,7 @@ def main() -> None:
         row = resolve_query(query, api_key, args.synopsis)
         rows.append(row)
         status = "found" if row["found"] else "not found"
-        print(f"       → {status}", file=sys.stderr)
+        print(f"       -> {status}", file=sys.stderr)
         if idx < total:
             time.sleep(REQUEST_DELAY_S)
 

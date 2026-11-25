@@ -10,17 +10,17 @@
 --    └──< book_tag >── tag     personal tags, many-to-many
 --
 --  Grain: ONE row in `book` = one physical book in the Magazin.
---  Location lives inline on `book` as mutable attributes — safe, because the
+--  Location lives inline on `book` as mutable attributes -- safe, because the
 --  identity anchor is the surrogate book_id, not the location.
 --
 --  SQLite notes (idioms that differ from other DBs):
---    • STRICT tables enforce column types (SQLite >= 3.37, 2021). If any tool
+--    - STRICT tables enforce column types (SQLite >= 3.37, 2021). If any tool
 --      ever chokes, delete the word STRICT and the table still works.
---    • No DATE/BOOLEAN type — dates are ISO-8601 TEXT, booleans INTEGER 0/1.
---    • "INTEGER PRIMARY KEY" auto-assigns ids on INSERT (aliases rowid).
---    • A UNIQUE column treats NULLs as all-distinct, so isbn13 can be UNIQUE
+--    - No DATE/BOOLEAN type -- dates are ISO-8601 TEXT, booleans INTEGER 0/1.
+--    - "INTEGER PRIMARY KEY" auto-assigns ids on INSERT (aliases rowid).
+--    - A UNIQUE column treats NULLs as all-distinct, so isbn13 can be UNIQUE
 --      *and* hold many NULL rows (every photo / pre-ISBN book).
---    • Foreign keys are OFF by default and must be re-enabled per connection:
+--    - Foreign keys are OFF by default and must be re-enabled per connection:
 --      PRAGMA foreign_keys = ON;  (see foot of file).
 -- ============================================================================
 
@@ -28,7 +28,7 @@
 -- ── book : the physical book, its identity, location, and workflow status ───
 -- The surrogate book_id is the MERGE ANCHOR: it survives ingest, correction,
 -- and (later) relocation. A ||PH|| placeholder graduates into a resolved book
--- by UPDATE on THIS row + a new revision — the id, location, and cover stay put.
+-- by UPDATE on THIS row + a new revision -- the id, location, and cover stay put.
 --
 -- NOTE on the forward reference: preferred_cover_id references `cover`, which is
 -- defined further down. SQLite permits this circular reference; at runtime you
@@ -38,11 +38,11 @@ CREATE TABLE book (
     book_id            INTEGER PRIMARY KEY,        -- surrogate identity / merge anchor
     isbn13             TEXT UNIQUE,                -- business key; NULL for photo / pre-ISBN books
                                                    -- UNIQUE guards against accidental double-adds
-    book_note          TEXT,                       -- free fact: "annotated", "Cover fehlt" — edited in place, spawns no row
+    book_note          TEXT,                       -- free fact: "annotated", "Cover fehlt" -- edited in place, spawns no row
     book_status        TEXT,                       -- OPEN-TEXT non-cover workflow indicator (the "pile shrinking" field)
 
     -- location, fused inline (no movement history) ----------------------------
-    room               TEXT,                       -- 'Magazin', 'Wohnzimmer', …
+    room               TEXT,                       -- 'Magazin', 'Wohnzimmer', ...
     space_label        TEXT,                       -- 'rack 03', 'cupboard A'
     bin_label          TEXT,                       -- box '01'..'25'; NULL where the space has no bins
     position           REAL,                       -- sortable order within the bin; REAL so 1.5 slots between 1 and 2
@@ -58,13 +58,13 @@ CREATE INDEX ix_book_isbn13 ON book(isbn13);
 -- ── book_revision : append-only FULL bibliographic snapshots (words only) ───
 -- Each row is a COMPLETE picture of the metadata at one point in time. An API
 -- result lands as one revision unchanged; a manual correction lands as the next
--- revision (newest wins). NO cover field — covers live in `cover`. Reads go
+-- revision (newest wins). NO cover field -- covers live in `cover`. Reads go
 -- through book_current, never this table.
 CREATE TABLE book_revision (
     revision_id        INTEGER PRIMARY KEY,
     book_id            INTEGER NOT NULL REFERENCES book(book_id),
 
-    source             TEXT NOT NULL,              -- OPEN TEXT: 'isbndb','openlibrary','photosearch','manual', …
+    source             TEXT NOT NULL,              -- OPEN TEXT: 'isbndb','openlibrary','photosearch','manual', ...
     revision_comment   TEXT,                       -- optional: why this revision exists
     created_at         TEXT NOT NULL,
 
@@ -92,7 +92,7 @@ CREATE TABLE book_revision (
 CREATE INDEX ix_revision_book ON book_revision(book_id, created_at);
 
 
--- ── cover : cover images — one row per image, references not bytes ──────────
+-- ── cover : cover images -- one row per image, references not bytes ──────────
 -- Owner is a single book_id. `cover_ref`
 -- holds the URL or a file path; the filename/where-to-find-it resolution is
 -- pushed to Excel/PyXLL, not stored here. `cover_source` and `cover_status` are
@@ -102,7 +102,7 @@ CREATE TABLE cover (
     cover_id           INTEGER PRIMARY KEY,
     book_id            INTEGER NOT NULL REFERENCES book(book_id),
     cover_ref          TEXT NOT NULL,              -- the URL, or a directly-supplied file path
-    cover_source       TEXT,                       -- OPEN TEXT: 'isbndb','amazon','thalia','own_photo', … (optional)
+    cover_source       TEXT,                       -- OPEN TEXT: 'isbndb','amazon','thalia','own_photo', ... (optional)
     cover_status       TEXT DEFAULT 'unreviewed',  -- OPEN TEXT cover workflow; default is just the ingest entry state
     created_at         TEXT NOT NULL
 ) STRICT;
@@ -112,7 +112,7 @@ CREATE INDEX ix_cover_book ON cover(book_id);
 
 -- ── tag + book_tag : personal tags, many-to-many ───────────────────────────
 -- The master tag list (your "Tags" sheet) lives in `tag`; books carry tags via
--- the junction. This is the ONE genuine relational exception we keep — "books
+-- the junction. This is the ONE genuine relational exception we keep -- "books
 -- by tag, sorted by location" is on the wanted list and tags are many-to-many.
 CREATE TABLE tag (
     tag_id   INTEGER PRIMARY KEY,
@@ -127,7 +127,7 @@ CREATE TABLE book_tag (
 
 
 -- ============================================================================
---  VIEW — the read layer. Everything (shelf/list views, PyXLL) reads here,
+--  VIEW -- the read layer. Everything (shelf/list views, PyXLL) reads here,
 --  never the append-only base tables directly.
 -- ============================================================================
 
@@ -136,7 +136,7 @@ CREATE TABLE book_tag (
 --
 -- LEFT JOIN to the revision subquery: a freshly-scanned or
 -- not-found book has NO revision yet, and the view that is meant to show *all*
--- the books must still show it — with NULL bibliographic fields. The
+-- the books must still show it -- with NULL bibliographic fields. The
 -- ROW_NUMBER() rn = 1 predicate lives in the ON clause so a book with zero
 -- revisions yields one row with NULLs rather than being filtered out.
 -- A coverless book likewise yields NULL cover_ref (no fabricated placeholder).

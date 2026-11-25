@@ -1,36 +1,36 @@
 #!/usr/bin/env python3
 """
-snapshot_core.py — The pure snapshot layer for haddolib.
+snapshot_core.py -- The pure snapshot layer for haddolib.
 
 Produces a full catalogue snapshot as an xlsx file, in a format that is
-directly re-importable via haddo_import / import_roster. A snapshot → edit →
-bootstrap → re-import cycle is the supported path for manual bibliographic
+directly re-importable via haddo_import / import_roster. A snapshot -> edit ->
+bootstrap -> re-import cycle is the supported path for manual bibliographic
 corrections until crossing 4 (bib editing dialog) is built.
 
 Public entry point:
 
-  write_snapshot(conn, dest, now) — write all books to an xlsx at dest.
+  write_snapshot(conn, dest, now) -- write all books to an xlsx at dest.
 
 Column contract:
   The output headers are exactly the keys of roster.FIELD_MAP (plus "tags"),
   in SNAPSHOT_FIELDS order. This is not accidental: the import layer maps by
   header string, so the snapshot and the import must speak the same vocabulary.
   If FIELD_MAP ever gains or loses a key, SNAPSHOT_FIELDS must be updated in step.
-  See haddolib-design.md §4 (contract note on field-name uniqueness).
+  See haddolib-design.md section 4 (contract note on field-name uniqueness).
 
 Columns intentionally excluded from the snapshot:
-  • book_id    — surrogate key; meaningless after a bootstrap + re-import
-                 (new ids are minted). Including it would imply a stable
-                 identity across re-imports that does not exist.
-  • revised_at — the revision's created_at timestamp; a property of the
-                 original ingest run, not re-playable via import.
+  - book_id    -- surrogate key; meaningless after a bootstrap + re-import
+                  (new ids are minted). Including it would imply a stable
+                  identity across re-imports that does not exist.
+  - revised_at -- the revision's created_at timestamp; a property of the
+                  original ingest run, not re-playable via import.
 
 Round-trip caveats (documented in GOALS.md):
-  • Only the preferred cover survives (book_current surfaces one cover row).
-  • Only the most recent revision survives (book_current's newest-wins JOIN).
-  • Orphan tags (use_count = 0) are not present in any book's tag list and
+  - Only the preferred cover survives (book_current surfaces one cover row).
+  - Only the most recent revision survives (book_current's newest-wins JOIN).
+  - Orphan tags (use_count = 0) are not present in any book's tag list and
     therefore vanish.
-  • book_id and revised_at are not preserved (see above).
+  - book_id and revised_at are not preserved (see above).
 
 This module is PURE: no PyXLL, no Excel object model. Testable on macOS.
 """
@@ -91,7 +91,7 @@ SNAPSHOT_FIELDS: list[str] = [
 
 # Sanity-check at import time: every entry in SNAPSHOT_FIELDS must be a known
 # FIELD_MAP key or the special TAGS_HEADER. A mismatch here means FIELD_MAP
-# was updated without updating SNAPSHOT_FIELDS — catch it loud and early.
+# was updated without updating SNAPSHOT_FIELDS -- catch it loud and early.
 _KNOWN = set(FIELD_MAP) | {TAGS_HEADER}
 _UNKNOWN = [f for f in SNAPSHOT_FIELDS if f not in _KNOWN]
 if _UNKNOWN:
@@ -112,15 +112,15 @@ def write_snapshot(
 ) -> int:
     """Write a full catalogue snapshot to dest as an xlsx.
 
-    conn — an open SQLite connection (the haddolib connection contract assumed:
-           foreign keys ON, row_factory = sqlite3.Row).
-    dest — a path (str / os.PathLike) or a writable binary file-like object,
-           passed directly to common.write_xlsx. The caller is responsible for
-           constructing the path (including the timestamp stem); this function
-           does not touch the filesystem beyond the single write_xlsx call.
-    now  — the run timestamp. Not used by this function directly, but accepted
-           for symmetry with run_import so the CLI wrapper has a single "now"
-           to stamp both the filename and any future audit fields.
+    conn -- an open SQLite connection (the haddolib connection contract assumed:
+            foreign keys ON, row_factory = sqlite3.Row).
+    dest -- a path (str / os.PathLike) or a writable binary file-like object,
+            passed directly to common.write_xlsx. The caller is responsible for
+            constructing the path (including the timestamp stem); this function
+            does not touch the filesystem beyond the single write_xlsx call.
+    now  -- the run timestamp. Not used by this function directly, but accepted
+            for symmetry with run_import so the CLI wrapper has a single "now"
+            to stamp both the filename and any future audit fields.
 
     Returns the number of books written (excluding the header row).
     """
@@ -138,7 +138,7 @@ def _to_snapshot_row(book: dict) -> dict:
     """Map one all_books() dict to a SNAPSHOT_FIELDS-keyed dict.
 
     book_current exposes every column that SNAPSHOT_FIELDS names, with the same
-    names — no renaming is needed. We simply pick the keys we want (SNAPSHOT_FIELDS)
+    names -- no renaming is needed. We simply pick the keys we want (SNAPSHOT_FIELDS)
     and let the rest (book_id, revised_at) fall away.
 
     Missing keys default to None (write_xlsx writes an empty cell for None).

@@ -1,9 +1,9 @@
 """
-tests/test_catalog.py — Tests for the pure handle catalog (catalog.py).
+tests/test_catalog.py -- Tests for the pure handle catalog (catalog.py).
 
 These tests ARE the spec for HandleCatalog. The catalog is pure (stdlib only,
 no PyXLL / Excel / DB), so everything here runs on macOS. A controllable clock
-is injected so TTL and last-accessed behaviour is tested deterministically —
+is injected so TTL and last-accessed behaviour is tested deterministically --
 no sleep().
 
 Each test builds its own HandleCatalog instance: the catalog owns its state
@@ -57,7 +57,7 @@ def test_handle_has_expected_format(catalog) -> None:
     parts = handle.split(":")
     assert len(parts) == 4
     assert parts[0] == "haddo"
-    assert len(parts[3]) == 32          # token_hex(16) → 32 hex chars
+    assert len(parts[3]) == 32          # token_hex(16) -> 32 hex chars
 
 
 def test_handles_are_unique(catalog) -> None:
@@ -66,11 +66,11 @@ def test_handles_are_unique(catalog) -> None:
 
 
 def test_default_session_id_is_generated() -> None:
-    # No session_id given → a non-empty 4-byte hex prefix is minted.
+    # No session_id given -> a non-empty 4-byte hex prefix is minted.
     cat = HandleCatalog()
     handle = cat.put("books_by_bin", [])
     prefix = handle.split(":")[1]
-    assert len(prefix) == 8             # token_hex(4) → 8 hex chars
+    assert len(prefix) == 8             # token_hex(4) -> 8 hex chars
 
 
 # ---------------------------------------------------------------------------
@@ -191,7 +191,7 @@ def test_sweep_uses_default_ttl_when_none(clock) -> None:
     cat = HandleCatalog(session_id="t", now_fn=clock.now, default_ttl_seconds=300)
     cat.put("books_by_bin", [])
     clock.advance(301)
-    assert cat.sweep() == 1                   # 300s default window, 301s old → evicted
+    assert cat.sweep() == 1                   # 300s default window, 301s old -> evicted
 
 
 # ---------------------------------------------------------------------------

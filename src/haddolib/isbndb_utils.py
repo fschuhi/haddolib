@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-isbndb_utils.py — Shared ISBNdb networking, selection, and field extraction.
+isbndb_utils.py -- Shared ISBNdb networking, selection, and field extraction.
 
 Used by isbndb_lookup.py (bulk POST), isbndb_search.py (single GET queries),
 and isbndb_synopsis.py (year-aware synopsis lookup). Handles the shared GET
@@ -45,7 +45,7 @@ def extract_dimensions(structured: dict) -> tuple[str, str, str, str]:
             return fmt_decimal(float(value))
         if unit == "mm":
             return fmt_decimal(value * _MM_TO_CM)
-        print(f"[WARN] Unrecognised length unit: {unit!r} — leaving blank", file=sys.stderr)
+        print(f"[WARN] Unrecognised length unit: {unit!r} -- leaving blank", file=sys.stderr)
         return ""
 
     def convert_weight(entry: dict) -> str:
@@ -61,7 +61,7 @@ def extract_dimensions(structured: dict) -> tuple[str, str, str, str]:
             return fmt_decimal(float(value), decimals=4)
         if unit in ("g", "gram", "grams"):
             return fmt_decimal(value * _G_TO_KG, decimals=4)
-        print(f"[WARN] Unrecognised weight unit: {unit!r} — leaving blank", file=sys.stderr)
+        print(f"[WARN] Unrecognised weight unit: {unit!r} -- leaving blank", file=sys.stderr)
         return ""
 
     return (
@@ -99,7 +99,7 @@ def fetch_editions(query: str, api_key: str) -> list[dict]:
     try:
         response = requests.get(url, headers=headers, timeout=30)
         if response.status_code == 429:
-            print("[WARN] Rate limit hit — waiting 5s before retry", file=sys.stderr)
+            print("[WARN] Rate limit hit -- waiting 5s before retry", file=sys.stderr)
             time.sleep(5)
             response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
@@ -201,7 +201,7 @@ def extract_record(record: dict, include_synopsis: bool = False) -> dict:
     Extract CSV fields from a single ISBNdb API record.
 
     Works for both bulk POST responses (isbndb_lookup.py) and
-    single GET responses (isbndb_search.py) — the record schema is the same.
+    single GET responses (isbndb_search.py) -- the record schema is the same.
 
     Returns a dict with keys RECORD_CSV_FIELDS. If include_synopsis is True, a
     'synopsis' key is appended containing the raw HTML synopsis field. Only

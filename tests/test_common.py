@@ -1,5 +1,5 @@
 """
-tests/test_common.py — Tests for shared ISBN validation utilities in common.py.
+tests/test_common.py -- Tests for shared ISBN validation utilities in common.py.
 
 These tests serve as a living specification for what constitutes a valid ISBN.
 Real ISBNs from the Magazin collection are used as positive cases where possible.
@@ -7,7 +7,7 @@ Real ISBNs from the Magazin collection are used as positive cases where possible
 ISBN-13 checksum: weights 1,3,1,3,... over first 12 digits;
   check digit = (10 - sum % 10) % 10
 
-ISBN-10 checksum: sum of (position × digit) for positions 1–9;
+ISBN-10 checksum: sum of (position * digit) for positions 1-9;
   check digit = sum % 11  (digit or X for 10)
 """
 
@@ -16,11 +16,11 @@ from haddolib.common import is_valid_isbn, is_valid_isbn10, is_valid_isbn13, isb
 
 
 # ---------------------------------------------------------------------------
-# ISBN-13 — valid
+# ISBN-13 -- valid
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("isbn", [
-    # Real books from the Magazin — confirmed valid by checksum
+    # Real books from the Magazin -- confirmed valid by checksum
     "9783589238446",
     "9783821816838",
     "9783821816814",
@@ -28,7 +28,7 @@ from haddolib.common import is_valid_isbn, is_valid_isbn10, is_valid_isbn13, isb
     "9783442167395",
     "9781785040481",
     "9780141040011",
-    # Valid ISBNs not found in ISBNdb — checksum still correct
+    # Valid ISBNs not found in ISBNdb -- checksum still correct
     "9783800619672",
     "9783596509096",
     # Hyphens and spaces must be stripped before validation
@@ -42,7 +42,7 @@ def test_isbn13_valid(isbn: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# ISBN-13 — invalid
+# ISBN-13 -- invalid
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("isbn, reason", [
@@ -69,7 +69,7 @@ def test_isbn13_invalid(isbn: str, reason: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# ISBN-10 — valid
+# ISBN-10 -- valid
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("isbn", [
@@ -88,7 +88,7 @@ def test_isbn10_valid(isbn: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# ISBN-10 — invalid
+# ISBN-10 -- invalid
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("isbn, reason", [
@@ -112,7 +112,7 @@ def test_isbn10_invalid(isbn: str, reason: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# is_valid_isbn — combined wrapper
+# is_valid_isbn -- combined wrapper
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("isbn", [
@@ -137,11 +137,11 @@ def test_is_valid_isbn_rejects_invalid(isbn: str, reason: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# isbn10_to_isbn13 — conversion
+# isbn10_to_isbn13 -- conversion
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("isbn10, expected_isbn13", [
-    # Real Magazin books — verified pairs
+    # Real Magazin books -- verified pairs
     ("3892282358", "9783892282358"),
     ("3100432088", "9783100432087"),
     ("3891365276", "9783891365274"),

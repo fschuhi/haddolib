@@ -99,7 +99,6 @@ tests/test_common_coercion.py
 tests/test_common_xlsx.py
 tests/test_database.py
 tests/test_export_core.py
-tests/test_harness.py
 tests/test_isbn_utils.py
 tests/test_pdf_lst_to_queries.py
 tests/test_prototype_schema.py
@@ -107,9 +106,6 @@ tests/test_query_core.py
 tests/test_roster.py
 tests/test_roster_import.py
 tests/test_tag_core.py
-
-## hibernated dream suite (kept green, on ice)
-#tests/test_ingest_isbndb.py
 
 ### --- DevOps tools ---
 tools/backup_db.py

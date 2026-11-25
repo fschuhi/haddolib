@@ -10,7 +10,7 @@ the connection *contract* is always honoured:
   1. Foreign keys are ON. SQLite turns foreign-key enforcement OFF by default, and the switch is
        PER-CONNECTION — it is forgotten the moment a connection closes. A caller
        that forgets `PRAGMA foreign_keys = ON` silently runs with no enforcement,
-       so a `copy` pointing at a non-existent `edition` would slip in unnoticed.
+       so a `book_revision` pointing at a non-existent `book` would slip in unnoticed.
        Doing it here, once, makes forgetting impossible.
 
   2. Journal mode is DELETE (SQLite's default rollback journal).
@@ -27,7 +27,7 @@ the connection *contract* is always honoured:
        `row_factory = sqlite3.Row` lets query results be read as `row["title"]`
        instead of `row[0]`, which keeps ingest code and tests legible.
 
-`apply_schema()` runs the DDL in `data/haddolib_schema.sql` against a connection.
+`apply_schema()` runs the schema DDL (`DEFAULT_SCHEMA`) against a connection.
 The same function serves two purposes: the test harness loads the schema onto a
 fresh in-memory connection, and the one-time creation of the live Windows DB
 (`apply_schema(connect())` on the VM) runs the identical DDL — no duplicated
@@ -54,7 +54,7 @@ DEFAULT_DB = r"C:\SQLite\haddolib\haddolib.db"
 # works regardless of the current working directory.
 #   src/haddolib/database.py  ->  .parent = haddolib/  ->  .parent = src/  ->  .parent = repo root
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_SCHEMA = _REPO_ROOT / "data" / "haddolib_schema.sql"
+DEFAULT_SCHEMA = _REPO_ROOT / "data" / "haddolib_prototype.sql"
 
 
 def connect(db_path: str = DEFAULT_DB) -> sqlite3.Connection:
@@ -80,7 +80,7 @@ def apply_schema(conn: sqlite3.Connection, sql_path: Path = DEFAULT_SCHEMA) -> s
     Load the haddolib schema DDL onto an existing connection.
 
     conn     — a connection from `connect()` (or any sqlite3 connection).
-    sql_path — path to the schema file; defaults to data/haddolib_schema.sql.
+    sql_path — path to the schema file; defaults to DEFAULT_SCHEMA.
 
     Reads the DDL and runs it as one script, then commits so the result is
     persisted (this matters for a file-backed DB; harmless for `:memory:`).

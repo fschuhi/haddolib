@@ -103,10 +103,8 @@ def isbn10_to_isbn13(isbn10: str) -> str:
 # ---------------------------------------------------------------------------
 # Value coercion (Excel/PyXLL cell value -> SQLite-ready value)
 # ---------------------------------------------------------------------------
-# Promoted here (from ingest_isbndb.py, where they were module-private) so the
-# roster import and any future ingest path share ONE definition rather than
-# drifting copies. The dream module keeps its own frozen copies while hibernated;
-# repointing it here is a deliberate post-birthday cleanup.
+# Kept here, in one shared place, so every import path uses the same definition
+# rather than drifting copies.
 #
 # The shared rule: a blank or missing value becomes NULL (None). This matters
 # because Excel UDFs / XLOOKUP always return something — an unmatched lookup

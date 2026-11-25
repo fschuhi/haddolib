@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
-bootstrap_db.py — Initializes or resets the live SQLite database with the prototype schema.
+bootstrap_db.py -- Initializes or resets the live SQLite database with the schema (DEFAULT_SCHEMA in database.py).
 """
 
 import sys
 from pathlib import Path
 
-from haddolib.database import DEFAULT_DB, apply_schema, connect
-
-SCHEMA_PATH = Path("data/haddolib_prototype.sql")
+from haddolib.database import DEFAULT_DB, DEFAULT_SCHEMA, apply_schema, connect
 
 
 def main() -> None:
@@ -30,17 +28,17 @@ def main() -> None:
             print(f"[ERROR] Could not delete existing database: {e}", file=sys.stderr)
             sys.exit(1)
 
-    if not SCHEMA_PATH.exists():
-        print(f"[ERROR] Schema file not found: {SCHEMA_PATH}", file=sys.stderr)
+    if not DEFAULT_SCHEMA.exists():
+        print(f"[ERROR] Schema file not found: {DEFAULT_SCHEMA}", file=sys.stderr)
         sys.exit(1)
 
     print(f"[INFO] Ensuring directory structure exists...")
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"[INFO] Connecting and applying schema from {SCHEMA_PATH}...")
+    print(f"[INFO] Connecting and applying schema from {DEFAULT_SCHEMA}...")
     try:
         conn = connect(str(db_path))
-        apply_schema(conn, str(SCHEMA_PATH))
+        apply_schema(conn)
         conn.close()
     except Exception as e:
         print(f"[ERROR] Failed to apply schema: {e}", file=sys.stderr)

@@ -26,9 +26,9 @@
 
 
 -- ── book : the physical book, its identity, location, and workflow status ───
--- The surrogate book_id is the MERGE ANCHOR: it survives import, correction,
--- and (later) relocation. A ||PH|| placeholder graduates into a resolved book
--- by UPDATE on THIS row + a new revision -- the id, location, and cover stay put.
+-- book_id is the key that book_revision, cover and book_tag point at. It stays
+-- the same while a book is corrected or moved within one database; a bootstrap
+-- and re-import (the +/- cycle) gives every book a new book_id.
 --
 -- NOTE on the forward reference: preferred_cover_id references `cover`, which is
 -- defined further down. SQLite permits this circular reference; at runtime you

@@ -16,7 +16,7 @@ Column contract:
   in SNAPSHOT_FIELDS order. This is not accidental: the import layer maps by
   header string, so the snapshot and the import must speak the same vocabulary.
   If FIELD_MAP ever gains or loses a key, SNAPSHOT_FIELDS must be updated in step.
-  See haddolib-design.md section 4 (contract note on field-name uniqueness).
+  See README.md section 5.2 (the import vocabulary).
 
 Columns intentionally excluded from the snapshot:
   - book_id    -- surrogate key; meaningless after a bootstrap + re-import

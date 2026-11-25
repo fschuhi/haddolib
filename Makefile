@@ -38,7 +38,7 @@ SETUP_STAMP   = $(VENV_DIR)/.setup_stamp
 .PHONY: patch commit-hash
 .PHONY: clean help
 .PHONY: showtree gentree filesdump filesdump-detailed
-.PHONY: bootstrap backup dump isbndb-lookup isbndb-search isbndb-query photo-analysis pdf-lst-to-queries isbn-synopsis
+.PHONY: bootstrap backup snapshot isbndb-lookup isbndb-search isbndb-query photo-analysis pdf-lst-to-queries isbn-synopsis
 
 all: setup
 
@@ -73,8 +73,8 @@ bootstrap: $(SETUP_STAMP) ## Initialize/reset the live database (interactive)
 backup: $(SETUP_STAMP) ## Safely backup the live DB to configured shares
 	$(RUN) tools/backup_db.py --dest /y/Projects/haddolib/bak --dest /x/SQLite-bak/haddolib
 
-dump: $(SETUP_STAMP) ## Export full catalogue to data/import/YYYYMMDD_HHMMSS_dump.xlsx
-	$(RUN) tools/dump_db.py
+snapshot: $(SETUP_STAMP) ## Write full catalogue to data/import/YYYYMMDD_HHMMSS_snapshot.xlsx
+	$(RUN) tools/write_snapshot.py
 
 isbndb-lookup: $(SETUP_STAMP) ## Look up list of ISBN13s (only!) via ISBNdb, generates csv
 	$(RUN) scripts/isbndb_lookup.py $(ARGS)

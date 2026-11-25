@@ -14,7 +14,7 @@ Two kinds of public entry points:
   books_by_title(conn, search)               — list-returning query by title.
   books_by_author(conn, search)              — list-returning query by author.
   books_by_tags(conn, tags, match_all)       — list-returning query by tags.
-  all_books(conn)                            — full catalogue snapshot for export.
+  all_books(conn)                            — full catalogue, read by write_snapshot().
 
     All list-returning functions return list[dict]: one dict per book, all
     book_current columns plus a 'tags' key (comma-separated tag names, or
@@ -545,8 +545,8 @@ def all_books(conn: sqlite3.Connection) -> list[dict]:
     has no tags). Books with no location set sort last (NULLs sort after
     non-NULLs in SQLite's default ascending collation).
 
-    This is the export entry point — it returns the full catalogue snapshot
-    that dump_db() in export_core.py maps to FIELD_MAP headers and writes
+    This is the snapshot entry point — it returns the full catalogue
+    that write_snapshot() in snapshot_core.py maps to FIELD_MAP headers and writes
     as an xlsx. No WHERE clause is intentional: all_books() is a deliberate
     full-table scan.
     """

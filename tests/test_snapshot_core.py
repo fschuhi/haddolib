@@ -1,7 +1,7 @@
 """
-tests/test_export_core.py — Tests for the pure export layer (export_core.py).
+tests/test_snapshot_core.py — Tests for the pure snapshot layer (snapshot_core.py).
 
-These tests ARE the spec for dump_db(). They use empty_db (the schema on an
+These tests ARE the spec for write_snapshot(). They use empty_db (the schema on an
 in-memory connection) and the same minimal seed used across the
 query_core tests.
 
@@ -18,7 +18,7 @@ from datetime import datetime
 import pytest
 from openpyxl import load_workbook
 
-from haddolib.export_core import DUMP_FIELDS, dump_db
+from haddolib.snapshot_core import SNAPSHOT_FIELDS, write_snapshot
 from haddolib.roster import FIELD_MAP, TAGS_HEADER
 
 NOW = datetime(2026, 6, 24, 15, 37, 43)
@@ -94,10 +94,10 @@ def seeded_db(empty_db):
     return empty_db
 
 
-def _dump(seeded_db) -> object:
-    """Run dump_db into an in-memory buffer and return the loaded workbook."""
+def _snapshot_workbook(seeded_db) -> object:
+    """Run write_snapshot into an in-memory buffer and return the loaded workbook."""
     buf = io.BytesIO()
-    dump_db(seeded_db, buf, NOW)
+    write_snapshot(seeded_db, buf, NOW)
     buf.seek(0)
     return load_workbook(buf)
 
@@ -106,43 +106,43 @@ def _dump(seeded_db) -> object:
 # Tests
 # ---------------------------------------------------------------------------
 
-def test_dump_db_produces_xlsx(seeded_db) -> None:
-    # dump_db should produce a file that openpyxl can open without error.
+def test_write_snapshot_produces_xlsx(seeded_db) -> None:
+    # write_snapshot should produce a file that openpyxl can open without error.
     buf = io.BytesIO()
-    dump_db(seeded_db, buf, NOW)
+    write_snapshot(seeded_db, buf, NOW)
     buf.seek(0)
     wb = load_workbook(buf)
     assert wb.active is not None
 
 
-def test_dump_db_header_matches_dump_fields(seeded_db) -> None:
-    # The header row must be exactly DUMP_FIELDS, in order.
-    ws = _dump(seeded_db).active
+def test_write_snapshot_header_matches_snapshot_fields(seeded_db) -> None:
+    # The header row must be exactly SNAPSHOT_FIELDS, in order.
+    ws = _snapshot_workbook(seeded_db).active
     header = [cell.value for cell in ws[1]]
-    assert header == DUMP_FIELDS
+    assert header == SNAPSHOT_FIELDS
 
 
-def test_dump_db_dump_fields_covers_field_map_and_tags() -> None:
-    # DUMP_FIELDS must contain every FIELD_MAP key and TAGS_HEADER — nothing
-    # from the import vocabulary should be silently missing from the dump.
-    assert set(DUMP_FIELDS) == set(FIELD_MAP) | {TAGS_HEADER}
+def test_snapshot_fields_covers_field_map_and_tags() -> None:
+    # SNAPSHOT_FIELDS must contain every FIELD_MAP key and TAGS_HEADER — nothing
+    # from the import vocabulary should be silently missing from the snapshot.
+    assert set(SNAPSHOT_FIELDS) == set(FIELD_MAP) | {TAGS_HEADER}
 
 
-def test_dump_db_row_count(seeded_db) -> None:
+def test_write_snapshot_row_count(seeded_db) -> None:
     # 4 books in the seed → 4 data rows (plus 1 header = 5 total rows in xlsx).
-    ws = _dump(seeded_db).active
+    ws = _snapshot_workbook(seeded_db).active
     assert ws.max_row == 5
 
 
-def test_dump_db_returns_book_count(seeded_db) -> None:
+def test_write_snapshot_returns_book_count(seeded_db) -> None:
     buf = io.BytesIO()
-    count = dump_db(seeded_db, buf, NOW)
+    count = write_snapshot(seeded_db, buf, NOW)
     assert count == 4
 
 
-def test_dump_db_values_round_trip(seeded_db) -> None:
-    # Book A's key fields must survive the dump intact.
-    ws = _dump(seeded_db).active
+def test_write_snapshot_values_round_trip(seeded_db) -> None:
+    # Book A's key fields must survive the snapshot intact.
+    ws = _snapshot_workbook(seeded_db).active
     header = [cell.value for cell in ws[1]]
 
     # Find Book A's row (isbn13 = 9783423058087).
@@ -153,7 +153,7 @@ def test_dump_db_values_round_trip(seeded_db) -> None:
             book_a_row = record
             break
 
-    assert book_a_row is not None, "Book A not found in dump"
+    assert book_a_row is not None, "Book A not found in snapshot"
     assert book_a_row["title"] == "Book A"
     assert book_a_row["room"] == "Magazin"
     assert book_a_row["space_label"] == "rack 01"
@@ -166,10 +166,10 @@ def test_dump_db_values_round_trip(seeded_db) -> None:
     assert book_a_row["tags"] == "Schweden, Thriller"
 
 
-def test_dump_db_revisionless_book_included(seeded_db) -> None:
+def test_write_snapshot_revisionless_book_included(seeded_db) -> None:
     # The photo book has no revision — it must appear with NULL bib fields,
-    # not be absent from the dump.
-    ws = _dump(seeded_db).active
+    # not be absent from the snapshot.
+    ws = _snapshot_workbook(seeded_db).active
     header = [cell.value for cell in ws[1]]
     photo_rows = []
     for row in ws.iter_rows(min_row=2, values_only=True):
@@ -185,21 +185,21 @@ def test_dump_db_revisionless_book_included(seeded_db) -> None:
     assert photo["tags"] == "Krimi"
 
 
-def test_dump_db_empty_db_writes_header_only(empty_db) -> None:
+def test_write_snapshot_empty_db_writes_header_only(empty_db) -> None:
     # An empty database should produce an xlsx with just the header row.
     buf = io.BytesIO()
-    count = dump_db(empty_db, buf, NOW)
+    count = write_snapshot(empty_db, buf, NOW)
     buf.seek(0)
     ws = load_workbook(buf).active
     assert ws.max_row == 1
     assert count == 0
 
 
-def test_dump_db_isbn13_is_text_cell(seeded_db) -> None:
+def test_write_snapshot_isbn13_is_text_cell(seeded_db) -> None:
     # ISBNs must be written as text cells — the whole reason for xlsx over CSV.
     # openpyxl data_type "s" means string; "n" would mean number (corrupted).
     buf = io.BytesIO()
-    dump_db(seeded_db, buf, NOW)
+    write_snapshot(seeded_db, buf, NOW)
     buf.seek(0)
     ws = load_workbook(buf).active
     header = [cell.value for cell in ws[1]]

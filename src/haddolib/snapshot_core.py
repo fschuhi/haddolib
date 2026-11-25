@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 """
-export_core.py — The pure export layer for haddolib.
+snapshot_core.py — The pure snapshot layer for haddolib.
 
 Produces a full catalogue snapshot as an xlsx file, in a format that is
-directly re-importable via haddo_import / import_roster. A dump → edit →
+directly re-importable via haddo_import / import_roster. A snapshot → edit →
 bootstrap → re-import cycle is the supported path for manual bibliographic
 corrections until crossing 4 (bib editing dialog) is built.
 
 Public entry point:
 
-  dump_db(conn, dest, now) — write all books to an xlsx at dest.
+  write_snapshot(conn, dest, now) — write all books to an xlsx at dest.
 
 Column contract:
   The output headers are exactly the keys of roster.FIELD_MAP (plus "tags"),
-  in DUMP_FIELDS order. This is not accidental: the import layer maps by
-  header string, so the dump and the import must speak the same vocabulary.
-  If FIELD_MAP ever gains or loses a key, DUMP_FIELDS must be updated in step.
+  in SNAPSHOT_FIELDS order. This is not accidental: the import layer maps by
+  header string, so the snapshot and the import must speak the same vocabulary.
+  If FIELD_MAP ever gains or loses a key, SNAPSHOT_FIELDS must be updated in step.
   See haddolib-design.md §4 (contract note on field-name uniqueness).
 
-Columns intentionally excluded from the dump:
+Columns intentionally excluded from the snapshot:
   • book_id    — surrogate key; meaningless after a bootstrap + re-import
                  (new ids are minted). Including it would imply a stable
                  identity across re-imports that does not exist.
@@ -45,13 +45,13 @@ from haddolib.query_core import all_books
 from haddolib.roster import FIELD_MAP, TAGS_HEADER
 
 # ---------------------------------------------------------------------------
-# Column order for the dump xlsx
+# Column order for the snapshot xlsx
 # ---------------------------------------------------------------------------
 
 # Exactly the FIELD_MAP keys (in their natural grouping order) plus TAGS_HEADER.
 # This list is the contract: import reads by header string, so every name here
 # must match a key in FIELD_MAP or be TAGS_HEADER. Nothing else, nothing less.
-DUMP_FIELDS: list[str] = [
+SNAPSHOT_FIELDS: list[str] = [
     # ── book ──────────────────────────────────────────────────────────────────
     "isbn13",
     "room",
@@ -89,15 +89,15 @@ DUMP_FIELDS: list[str] = [
     "tags",
 ]
 
-# Sanity-check at import time: every entry in DUMP_FIELDS must be a known
+# Sanity-check at import time: every entry in SNAPSHOT_FIELDS must be a known
 # FIELD_MAP key or the special TAGS_HEADER. A mismatch here means FIELD_MAP
-# was updated without updating DUMP_FIELDS — catch it loud and early.
+# was updated without updating SNAPSHOT_FIELDS — catch it loud and early.
 _KNOWN = set(FIELD_MAP) | {TAGS_HEADER}
-_UNKNOWN = [f for f in DUMP_FIELDS if f not in _KNOWN]
+_UNKNOWN = [f for f in SNAPSHOT_FIELDS if f not in _KNOWN]
 if _UNKNOWN:
     raise RuntimeError(
-        f"export_core.DUMP_FIELDS contains entries not in FIELD_MAP or TAGS_HEADER: "
-        f"{_UNKNOWN!r}. Update DUMP_FIELDS to match."
+        f"snapshot_core.SNAPSHOT_FIELDS contains entries not in FIELD_MAP or TAGS_HEADER: "
+        f"{_UNKNOWN!r}. Update SNAPSHOT_FIELDS to match."
     )
 
 
@@ -105,7 +105,7 @@ if _UNKNOWN:
 # Public entry point
 # ---------------------------------------------------------------------------
 
-def dump_db(
+def write_snapshot(
     conn: sqlite3.Connection,
     dest,
     now: datetime,
@@ -125,8 +125,8 @@ def dump_db(
     Returns the number of books written (excluding the header row).
     """
     books = all_books(conn)
-    rows = [_to_dump_row(book) for book in books]
-    write_xlsx(rows, dest, DUMP_FIELDS)
+    rows = [_to_snapshot_row(book) for book in books]
+    write_xlsx(rows, dest, SNAPSHOT_FIELDS)
     return len(rows)
 
 
@@ -134,13 +134,13 @@ def dump_db(
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-def _to_dump_row(book: dict) -> dict:
-    """Map one all_books() dict to a DUMP_FIELDS-keyed dict.
+def _to_snapshot_row(book: dict) -> dict:
+    """Map one all_books() dict to a SNAPSHOT_FIELDS-keyed dict.
 
-    book_current exposes every column that DUMP_FIELDS names, with the same
-    names — no renaming is needed. We simply pick the keys we want (DUMP_FIELDS)
+    book_current exposes every column that SNAPSHOT_FIELDS names, with the same
+    names — no renaming is needed. We simply pick the keys we want (SNAPSHOT_FIELDS)
     and let the rest (book_id, revised_at) fall away.
 
     Missing keys default to None (write_xlsx writes an empty cell for None).
     """
-    return {field: book.get(field) for field in DUMP_FIELDS}
+    return {field: book.get(field) for field in SNAPSHOT_FIELDS}

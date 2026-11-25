@@ -55,8 +55,8 @@ src/haddolib/isbndb_utils.py
 src/haddolib/roster.py        
 src/haddolib/roster_import.py
 
-### --- roster export ---
-src/haddolib/export_core.py
+### --- roster snapshot ---
+src/haddolib/snapshot_core.py
 
 ### --- PyXLL bridge ---
 src/haddolib/bridge_core.py
@@ -95,7 +95,7 @@ tests/test_common.py
 tests/test_common_coercion.py
 tests/test_common_xlsx.py
 tests/test_database.py
-tests/test_export_core.py
+tests/test_snapshot_core.py
 tests/test_isbn_utils.py
 tests/test_pdf_lst_to_queries.py
 tests/test_default_schema.py
@@ -109,7 +109,7 @@ tools/backup_db.py
 tools/bootstrap_db.py
 #tools/concat_files.py
 #tools/control_sheet.py
-tools/dump_db.py
+tools/write_snapshot.py
 
 ### --- Raw scan data, example, generated from Barcode scanner, 00-14, not tracked in git ---
 #data/raw/rack_01.txt

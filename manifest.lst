@@ -1,0 +1,135 @@
+# (This file is the basis of the `filesdump.txt` in which it is included, i.e. the document you are reading right now.
+# The files in this manifest are the relevant files for understanding how the project hangs together.
+# Files which are commented out exist but are not included in the `filesdump.txt`.)
+
+### --- Context & Meta ---
+# ⚠️ NON-NEGOTIABLE collaboration rules - READ FIRST
+CRITICAL_RULES.md
+
+LLM_INSTRUCTIONS.md
+manifest.lst
+tmp/project_tree.txt
+
+# standard project documentation (probably slightly out of sync)
+README.md
+GOALS.md
+TODO.md
+
+# main design document
+haddolib-design.md
+
+### --- Build & Python Configuration ---
+Makefile
+requirements.txt
+requirements-win.txt
+pyproject.toml
+#.gitignore
+#.gitattributes
+
+### --- Tools Configuration ---
+# ISBNdb API key
+#.env
+
+### --- Cataloguing tools ---
+#tools/control-sheet.py
+
+### --- Workflow tools (CSV-producing scripts, macOS-side) ---
+scripts/cover_download.py
+scripts/isbndb_lookup.py
+scripts/isbndb_query.py
+scripts/isbndb_search.py
+scripts/isbndb_synopsis.py
+scripts/pdf_lst_to_queries.py
+scripts/photo_analysis.py
+
+# Open Library lookup superseded by ISBNdb
+#scripts/isbn_lookup.py
+
+### --- Shared foundation ---
+src/haddolib/catalog.py
+src/haddolib/common.py
+src/haddolib/database.py
+src/haddolib/isbndb_utils.py
+
+### --- roster import (Excel roster sheet -> SQLite) ---
+src/haddolib/roster.py        
+src/haddolib/roster_import.py
+
+### --- roster export ---
+src/haddolib/export_core.py
+
+### --- PyXLL bridge ---
+src/haddolib/bridge_core.py
+src/haddolib/pyxll_bridge.py
+src/haddolib/query_core.py
+src/haddolib/tag_core.py
+
+### --- VBA macros for the bridge ---
+#bas/clDataSheet.cls
+#bas/clHaddoBookshelf.cls
+#bas/BookInfo.bas
+#bas/BookShelves.bas
+#bas/Buttons.bas
+#bas/Consts.bas
+#bas/Factory.bas
+#bas/Haddolib.bas
+#bas/Images.bas
+#bas/ISBN.bas
+#bas/Main.bas
+#bas/Photos.bas
+#bas/RackBox.bas
+#bas/ShapeClick.bas
+
+### --- HIBERNATED: five-grain "dream" ingest (frozen, not developed during prototype) ---
+#src/haddolib/ingest_isbndb.py
+
+### --- SQL ---
+data/haddolib_prototype.sql
+
+### --- Tests ---
+## Boundary files: show how architecture works at places we might change
+## fixture definitions; import crossing contract
+tests/conftest.py
+tests/test_bridge_core.py
+tests/test_catalog.py
+
+## large, stable, low-entropy for orientation purposes
+tests/test_common.py
+tests/test_common_coercion.py
+tests/test_common_xlsx.py
+tests/test_database.py
+tests/test_export_core.py
+tests/test_harness.py
+tests/test_isbn_utils.py
+tests/test_pdf_lst_to_queries.py
+tests/test_prototype_schema.py
+tests/test_query_core.py
+tests/test_roster.py
+tests/test_roster_import.py
+tests/test_tag_core.py
+
+## hibernated dream suite (kept green, on ice)
+#tests/test_ingest_isbndb.py
+
+### --- DevOps tools ---
+tools/backup_db.py
+tools/bootstrap_db.py
+#tools/concat_files.py
+#tools/control_sheet.py
+tools/dump_db.py
+
+### --- Raw scan data, example, generated from Barcode scanner, 00-14, not tracked in git ---
+#data/raw/rack_01.txt
+
+### --- Photos taken from books without barcode (examples), not tracked in git
+#data/photos/rack_01 2026-02-16 21.29.43.jpg
+#data/photos/rack_01 2026-02-16 21.35.20.jpg
+#data/photos/rack_01 2026-02-16 21.54.32.jpg
+#data/photos/rack_04 2026-02-18 20.49.55.jpg
+
+### --- Input (manually generated using racks.xlsm), not tracked in git ---
+#data/input/ISBN_request_list.csv
+
+### --- Output (generated), not tracked in git ---
+#data/output/isbn_results.csv
+#data/output/photo_results.csv

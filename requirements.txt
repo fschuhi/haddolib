@@ -1,0 +1,18 @@
+# HTTP
+requests>=2.31
+
+# intentionally not using the Open Library Client
+python-dotenv>=1.0
+
+# Image analysis / VLM (local)
+ollama>=0.2
+
+# Data handling
+pandas>=2.0
+
+# Dev tools
+black>=24.0
+pytest>=8.0
+
+# Excel
+openpyxl

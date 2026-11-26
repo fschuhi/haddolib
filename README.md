@@ -205,7 +205,7 @@ The `Makefile` works on both sides (Git Bash and GNU Make in the VM).
 
 - **`make test`** -- the whole test suite (on the Mac; also runs in the VM).
 - **`make snapshot`** -- write the whole library to `data/import/YYYYMMDD_HHMMSS_snapshot.xlsx`.
-- **`make bootstrap`** -- re-create an empty live database from the schema; asks before deleting the existing one.
+- **`make bootstrap`** -- re-create an empty live database from the schema; asks before deleting the existing one, and writes a snapshot of it to `data/import/` first (nothing is deleted if that fails).
 - **`make backup`** -- back up the live database (see above).
 - **`make isbndb-lookup` / `isbndb-search` / `isbndb-query`** -- ISBNdb lookups by ISBN, by free-text list, or one query with all editions.
 - **`make photo-analysis`** -- read title and author from cover photos with a local vision model (Ollama).

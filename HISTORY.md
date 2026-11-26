@@ -9,6 +9,8 @@
 
 ---
 
+- **2026-11-26:** Synopses: 1,415 of the 2,723 books known to ISBNdb now have one, saved exactly as ISBNdb delivers them, one file per ISBN (`make isbndb-synopsis-isbn13`). The gaps are ISBNdb's, mostly the German books.
+- **2026-11-26:** `make bootstrap` takes a snapshot of the old database before it deletes it, so a forgotten `make snapshot` can no longer cost tags.
 - **2026-11-25:** One README tells the whole story: the +/- cycle in Excel, what haddoapp and `pdf-annotations` rely on, and what runs on the Mac and what in the VM. The design document has served its purpose.
 - **2026-11-25:** haddolib and haddoapp, read together for the first time. haddolib moves into a fresh public repository, without the raw ISBN scans; the full history stays private in `haddolib-old`.
 - **2026-11-25:** The dream retires, and the word "prototype" with it: the five tables and one view the library lives in are simply the schema now, `haddolib_default_schema.sql`.

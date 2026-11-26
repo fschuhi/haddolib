@@ -19,6 +19,7 @@ data/input/
 data/output/
 data/photos*/
 data/raw/
+data/synopses/
 
 # 25.11.26 exclude photos
 docs-private/

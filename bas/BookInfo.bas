@@ -52,19 +52,36 @@ Sub ShowBookInfo(sQuery As String)
         Exit Sub
     End If
 
+    ' ---- find the columns by name in the header line, not by position ----
+    ' The column order of the script output may change; its header line names the columns.
+    Dim hdr() As String
+    hdr = SplitCSVLine(FirstLine(sOut), ";")
+
+    Dim iTitle  As Long: iTitle = FieldIndex(hdr, "title")
+    Dim iAuthor As Long: iAuthor = FieldIndex(hdr, "authors")
+    Dim iSynop  As Long: iSynop = FieldIndex(hdr, "synopsis")
+    If iTitle < 0 Or iAuthor < 0 Or iSynop < 0 Then
+        MsgBox "Column title, authors or synopsis not found in the script output." & vbCrLf & _
+               "Header: " & FirstLine(sOut), vbExclamation, "Book Info"
+        Exit Sub
+    End If
+
     ' ---- parse semicolon-delimited CSV ----
     Dim fld() As String
     fld = SplitCSVLine(dataLine, ";")
 
-    If UBound(fld) < 9 Then
+    Dim iLast As Long: iLast = iTitle
+    If iAuthor > iLast Then iLast = iAuthor
+    If iSynop > iLast Then iLast = iSynop
+    If UBound(fld) < iLast Then
         MsgBox "Unexpected field count (" & UBound(fld) + 1 & ").", _
                vbExclamation, "Book Info"
         Exit Sub
     End If
 
-    Dim sTitle  As String:  sTitle = Dequote(fld(2))
-    Dim sAuthor As String:  sAuthor = Dequote(fld(3))
-    Dim sSynop  As String:  sSynop = Dequote(fld(9))
+    Dim sTitle  As String:  sTitle = Dequote(fld(iTitle))
+    Dim sAuthor As String:  sAuthor = Dequote(fld(iAuthor))
+    Dim sSynop  As String:  sSynop = Dequote(fld(iSynop))
 
     MsgBox sTitle & vbCrLf & sAuthor & vbCrLf & vbCrLf & sSynop, vbOKOnly, "Book Info"
 End Sub
@@ -81,6 +98,32 @@ Private Function FirstDataLine(ByVal s As String) As String
 Nxt:
     Next i
     FirstDataLine = ""
+End Function
+
+
+Private Function FirstLine(ByVal s As String) As String
+    Dim ln() As String, i As Long
+    ln = Split(Replace$(s, vbCrLf, vbLf), vbLf)
+    For i = 0 To UBound(ln)
+        If Len(Trim$(ln(i))) > 0 Then
+            FirstLine = Trim$(ln(i))
+            Exit Function
+        End If
+    Next i
+    FirstLine = ""
+End Function
+
+
+' Position (0-based) of the column called sName in the header fields, or -1.
+Private Function FieldIndex(hdr() As String, ByVal sName As String) As Long
+    Dim i As Long
+    For i = LBound(hdr) To UBound(hdr)
+        If StrComp(Dequote(hdr(i)), sName, vbTextCompare) = 0 Then
+            FieldIndex = i
+            Exit Function
+        End If
+    Next i
+    FieldIndex = -1
 End Function
 
 
@@ -116,4 +159,5 @@ Private Function Dequote(ByVal s As String) As String
     End If
     Dequote = Replace$(s, """""", """")
 End Function
+
 

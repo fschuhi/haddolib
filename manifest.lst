@@ -62,20 +62,20 @@ src/haddolib/query_core.py
 src/haddolib/tag_core.py
 
 ### --- VBA macros for the bridge ---
-#bas/clDataSheet.cls
-#bas/clHaddoBookshelf.cls
-#bas/BookInfo.bas
-#bas/BookShelves.bas
-#bas/Buttons.bas
-#bas/Consts.bas
-#bas/Factory.bas
-#bas/Haddolib.bas
-#bas/Images.bas
-#bas/ISBN.bas
-#bas/Main.bas
-#bas/Photos.bas
-#bas/RackBox.bas
-#bas/ShapeClick.bas
+bas/clDataSheet.cls
+bas/clHaddoBookshelf.cls
+bas/BookInfo.bas
+bas/BookShelves.bas
+bas/Buttons.bas
+bas/Consts.bas
+bas/Factory.bas
+bas/Haddolib.bas
+bas/Images.bas
+bas/ISBN.bas
+bas/Main.bas
+bas/Photos.bas
+bas/RackBox.bas
+bas/ShapeClick.bas
 
 ### --- SQL ---
 data/haddolib_default_schema.sql
@@ -88,18 +88,18 @@ tests/test_bridge_core.py
 tests/test_catalog.py
 
 ## large, stable, low-entropy for orientation purposes
-tests/test_common.py
-tests/test_common_coercion.py
-tests/test_common_xlsx.py
-tests/test_database.py
-tests/test_snapshot_core.py
-tests/test_isbndb_utils.py
-tests/test_pdf_lst_to_queries.py
-tests/test_default_schema.py
+#tests/test_common.py
+#tests/test_common_coercion.py
+#tests/test_common_xlsx.py
+#tests/test_database.py
+#tests/test_snapshot_core.py
+#tests/test_isbndb_utils.py
+#tests/test_pdf_lst_to_queries.py
+#tests/test_default_schema.py
 tests/test_query_core.py
-tests/test_roster.py
-tests/test_roster_import.py
-tests/test_tag_core.py
+#tests/test_roster.py
+#tests/test_roster_import.py
+#tests/test_tag_core.py
 
 ### --- DevOps tools ---
 tools/backup_db.py

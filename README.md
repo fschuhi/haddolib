@@ -173,6 +173,15 @@ haddoapp keeps a copy of `data/haddolib_default_schema.sql` in its `docs/`, iden
 - `make isbndb-synopsis` writes one `<pdf_id>.txt` per PDF into `~/Obsidian/Papers/Collection/Synopses`, where `pdf_id` is the part in parentheses. A file with text is a synopsis (UTF-8 with BOM); an empty file means "looked up, nothing found". Existing files are skipped unless `--force` is given.
 - `pdf-annotations` reads that folder (`make fill-synopses` there). The folder and the file format are the whole contract; no code is shared.
 
+### 5.7 Book synopses
+
+`make isbndb-synopsis-isbn13` fetches the synopsis of every book that is known to be on ISBNdb and writes one `<isbn13>.txt` per book into `data/synopses/` (not in git):
+
+- **Input:** a snapshot xlsx, by default the newest `YYYYMMDD_HHMMSS_snapshot.xlsx` in `data/import/` (an Excel lock file like `~$...` is ignored) (`-i FILE` names another one). It takes the rows with `revision_source` = `isbndb` and an `isbn13`. This is the one script that reads a snapshot, not a `.lst` file; the snapshot is the only place where the catalogue's ISBNs and sources are listed together, and `make snapshot` runs in the VM. A new book is therefore picked up after the next snapshot.
+- **Calls:** up to 100 ISBNs per bulk call, about one call per second -- some 30 calls for the whole library.
+- **Files:** same contract as in section 5.6. A file with text is a synopsis (UTF-8 with BOM); an empty file means "looked up, nothing found"; existing files are skipped unless `--force` is given. The text is stored as ISBNdb returns it.
+- **Failure:** a failed call (VPN, quota) stops the run with exit code 1 and writes nothing for that batch, so a failure is never recorded as "nothing found". A rerun carries on.
+
 ## 6 Running
 
 ### 6.1 Where things run
@@ -201,6 +210,7 @@ The `Makefile` works on both sides (Git Bash and GNU Make in the VM).
 - **`make isbndb-lookup` / `isbndb-search` / `isbndb-query`** -- ISBNdb lookups by ISBN, by free-text list, or one query with all editions.
 - **`make photo-analysis`** -- read title and author from cover photos with a local vision model (Ollama).
 - **`make pdf-lst-to-queries` / `isbndb-synopsis`** -- the synopses for `pdf-annotations` (section 5.6).
+- **`make isbndb-synopsis-isbn13`** -- the synopses of the catalogue's books, from the newest snapshot (section 5.7).
 - **`make help`** lists all targets.
 
 `scripts/openlibrary_lookup.py` (ISBN lookup through Open Library, the first provider) has no make target.

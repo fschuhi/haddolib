@@ -1,6 +1,8 @@
 """
 tests/test_isbndb_utils.py -- Tests for the ISBNdb selection helpers
-(extract_year, select_best_matching_year) in isbndb_utils.py.
+(extract_year, select_best_matching_year) and the bulk-response helper
+(records_by_isbn13) in isbndb_utils.py. fetch_by_isbn13() does the network
+call and is tested manually.
 
 extract_dimensions() and extract_record() are not yet covered here -- this
 file targets only the new year-aware selection logic added this session.
@@ -13,7 +15,11 @@ same book, 21 years apart, neither with a placeholder cover.
 
 import pytest
 
-from haddolib.isbndb_utils import extract_year, select_best_matching_year
+from haddolib.isbndb_utils import (
+    extract_year,
+    records_by_isbn13,
+    select_best_matching_year,
+)
 
 # ---------------------------------------------------------------------------
 # Fixture: real two-edition API response (year param omitted), trimmed to
@@ -86,3 +92,30 @@ def test_select_best_matching_year_no_year_requested() -> None:
     record, year_matched = select_best_matching_year(_TWO_EDITIONS, "")
     assert record["isbn13"] == "9781559393218"
     assert year_matched == ""
+
+
+# ---------------------------------------------------------------------------
+# records_by_isbn13()
+# ---------------------------------------------------------------------------
+
+def test_records_by_isbn13_keys_by_isbn13() -> None:
+    data = {"requested": 2, "data": [_SHAMBHALA_2009, _SNOW_LION_1988]}
+    result = records_by_isbn13(data)
+    assert list(result) == ["9781559393218", "9780937938690"]
+    assert result["9780937938690"] is _SNOW_LION_1988
+
+
+def test_records_by_isbn13_falls_back_to_isbn() -> None:
+    record = {"title": "No isbn13 field", "isbn": "9781559393218"}
+    assert records_by_isbn13({"data": [record]}) == {"9781559393218": record}
+
+
+def test_records_by_isbn13_skips_records_without_isbn() -> None:
+    data = {"data": [{"title": "No ISBN at all"}, _SHAMBHALA_2009]}
+    assert list(records_by_isbn13(data)) == ["9781559393218"]
+
+
+def test_records_by_isbn13_without_data_is_empty() -> None:
+    # ISBNdb answers a request for unknown books without a 'data' list.
+    assert records_by_isbn13({}) == {}
+    assert records_by_isbn13({"requested": 1, "data": []}) == {}

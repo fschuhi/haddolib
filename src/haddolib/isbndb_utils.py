@@ -76,6 +76,9 @@ def extract_dimensions(structured: dict) -> tuple[str, str, str, str]:
 
 _API_URL = "https://api2.isbndb.com/books"
 
+# Maximum number of ISBNs ISBNdb accepts in one bulk POST.
+BATCH_SIZE = 100
+
 
 def fetch_editions(query: str, api_key: str) -> list[dict]:
     """
@@ -109,6 +112,54 @@ def fetch_editions(query: str, api_key: str) -> list[dict]:
         return []
 
     return data.get("books", [])
+
+
+def records_by_isbn13(data: dict) -> dict[str, dict]:
+    """
+    Turn a bulk POST /books response into {isbn13: raw record}.
+
+    Reads the 'data' list of the response. The key is the record's 'isbn13',
+    falling back to 'isbn' if that is missing. Records with neither are
+    dropped. A response without 'data' gives an empty dict.
+    """
+    by_isbn13: dict[str, dict] = {}
+    for record in data.get("data", []):
+        key = record.get("isbn13") or record.get("isbn")
+        if key:
+            by_isbn13[key] = record
+    return by_isbn13
+
+
+def fetch_by_isbn13(isbn13s: list[str], api_key: str) -> dict[str, dict]:
+    """
+    Fetch raw records for up to BATCH_SIZE ISBN-13s in one bulk POST /books.
+
+    Handles the ISBNdb Basic-plan 429 rate limit with a single sleep-and-retry.
+    Returns {isbn13: raw record} for the books ISBNdb knows; ISBNs it does not
+    know are simply absent from the result.
+
+    Unlike fetch_editions(), a failed request is NOT turned into an empty
+    result: the requests exception propagates. An empty result means "ISBNdb
+    does not know these books", and callers may record that permanently (a
+    zero-length synopsis file); a network or rate-limit failure must never be
+    mistaken for it. Raises ValueError if more than BATCH_SIZE ISBNs are given.
+    """
+    if len(isbn13s) > BATCH_SIZE:
+        raise ValueError(f"At most {BATCH_SIZE} ISBNs per call, got {len(isbn13s)}")
+    headers = {
+        "accept": "application/json",
+        "Authorization": api_key,
+        "Content-Type": "application/json",
+    }
+    payload = {"isbns": isbn13s}
+
+    response = requests.post(_API_URL, headers=headers, json=payload, timeout=30)
+    if response.status_code == 429:
+        print("[WARN] Rate limit hit -- waiting 5s before retry", file=sys.stderr)
+        time.sleep(5)
+        response = requests.post(_API_URL, headers=headers, json=payload, timeout=30)
+    response.raise_for_status()
+    return records_by_isbn13(response.json())
 
 
 # --- Result selection ---
@@ -204,8 +255,8 @@ def extract_record(record: dict, include_synopsis: bool = False) -> dict:
     single GET responses (isbndb_search.py) -- the record schema is the same.
 
     Returns a dict with keys RECORD_CSV_FIELDS. If include_synopsis is True, a
-    'synopsis' key is appended containing the raw HTML synopsis field. Only
-    present in GET responses; bulk POST responses do not carry this field.
+    'synopsis' key is appended containing the raw synopsis field (possibly
+    HTML). Both the GET and the bulk POST responses carry it.
     """
 
     def join(lst: list) -> str:

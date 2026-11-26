@@ -38,7 +38,7 @@ SETUP_STAMP   = $(VENV_DIR)/.setup_stamp
 .PHONY: patch commit-hash
 .PHONY: clean help
 .PHONY: showtree gentree filesdump filesdump-detailed
-.PHONY: bootstrap backup snapshot isbndb-lookup isbndb-search isbndb-query photo-analysis pdf-lst-to-queries isbndb-synopsis
+.PHONY: bootstrap backup snapshot isbndb-lookup isbndb-search isbndb-query photo-analysis pdf-lst-to-queries isbndb-synopsis isbndb-synopsis-isbn13
 
 all: setup
 
@@ -93,6 +93,9 @@ pdf-lst-to-queries: $(SETUP_STAMP) ## Convert a *.lst of PDF filenames into an I
 
 isbndb-synopsis: $(SETUP_STAMP) ## Fetch synopses for pdf-annotations PDFs (ARGS to override, or add --force)
 	$(RUN) scripts/isbndb_synopsis.py -i data/output/pdfs_query.csv -o data/output/pdfs_query_result.csv --synopses-dir ~/Obsidian/Papers/Collection/Synopses $(ARGS)
+
+isbndb-synopsis-isbn13: $(SETUP_STAMP) ## Fetch synopses of all ISBNdb books in the newest snapshot (ARGS: -i FILE, --force)
+	$(RUN) scripts/isbndb_synopsis_isbn13.py $(ARGS)
 
 # --- Utilities ---
 

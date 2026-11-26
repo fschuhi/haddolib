@@ -15,9 +15,6 @@ README.md
 GOALS.md
 TODO.md
 
-# main design document
-haddolib-design.md
-
 ### --- Build & Python Configuration ---
 Makefile
 requirements.txt

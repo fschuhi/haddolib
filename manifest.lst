@@ -38,6 +38,7 @@ scripts/isbndb_search.py
 scripts/isbndb_synopsis.py
 scripts/pdf_lst_to_queries.py
 scripts/photo_analysis.py
+scripts/scan_lookup.py
 
 # Open Library lookup superseded by ISBNdb
 #scripts/openlibrary_lookup.py
@@ -99,6 +100,7 @@ tests/test_catalog.py
 tests/test_query_core.py
 #tests/test_roster.py
 #tests/test_roster_import.py
+tests/test_scan_lookup.py
 #tests/test_tag_core.py
 
 ### --- DevOps tools ---
